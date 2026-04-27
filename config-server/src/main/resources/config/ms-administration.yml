@@ -1,8 +1,8 @@
 server:
-  port: 8083
+  port: 8082
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_portable?currentSchema=inventory
+    url: jdbc:postgresql://localhost:5432/db_portable?currentSchema=administration
     username: postgres
     password: admin
   jpa:
@@ -11,7 +11,7 @@ spring:
       show-sql: true
       format-sql: true
     properties:
-      hibernate.default_schema: inventory
+      hibernate.default_schema: administration
 eureka:
   client:
     service-url:

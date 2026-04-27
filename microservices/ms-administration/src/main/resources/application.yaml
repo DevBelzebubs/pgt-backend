@@ -1,3 +1,5 @@
 spring:
   application:
     name: ms-administration
+  config:
+    import: "optional:configserver:http://localhost:8888"
