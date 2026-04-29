@@ -1,4 +1,4 @@
-package com.portable.microservices.ms_inventory;
+package com.portableglobal.inventario;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
