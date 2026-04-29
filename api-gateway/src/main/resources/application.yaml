@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   main:
     web-application-type: reactive
@@ -5,3 +8,24 @@ spring:
     name: api-gateway
   config:
     import: "optional:configserver:http://localhost:8888"
+  cloud:
+    gateway:
+      routes:
+        - id: ms-administration-auth
+          uri: lb://ms-administration
+          predicates:
+            - Path=/api/auth/**
+        
+        - id: ms-administration-users
+          uri: lb://ms-administration
+          predicates:
+            - Path=/api/users/**
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
