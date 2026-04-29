@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.jdbc.core.JdbcTemplate; // IMPORTANTE
 
 import com.portable.microservices.ms_administration.iam.domain.model.Account;
 import com.portable.microservices.ms_administration.iam.domain.model.Role;
@@ -25,34 +24,10 @@ public class CreateUserUseCase implements CreateUserPortIn {
     private final AccountPersistencePortOut accountPersistence;
     private final RolePersistencePortOut rolePersistence;
     private final PasswordEncryptationPortOut passwordEncryptation;
-    private final JdbcTemplate jdbcTemplate; // Inyectamos esto para el diagnóstico
 
     @Override
     @Transactional
     public Account execute(CreateUserCommand command) {
-        
-        // --- INICIO BLOQUE DE DIAGNÓSTICO ---
-        System.out.println("========== TEST DE VISIBILIDAD BASE DE DATOS ==========");
-        try {
-            Integer count = jdbcTemplate.queryForObject(
-                "SELECT count(*) FROM administration.sede WHERE id_sede = ?", 
-                Integer.class, 
-                command.headquarterId()
-            );
-            System.out.println("🔍 ID BUSCADO: " + command.headquarterId());
-            System.out.println("🔍 ¿JAVA VE LA SEDE EN LA DB?: " + (count > 0 ? "SÍ (Existe)" : "NO (No existe)"));
-            
-            // Verificamos en qué esquema y base estamos parados
-            String currentDb = jdbcTemplate.queryForObject("SELECT current_database()", String.class);
-            String currentSchema = jdbcTemplate.queryForObject("SELECT current_schema()", String.class);
-            System.out.println("🔍 BASE DE DATOS ACTUAL: " + currentDb);
-            System.out.println("🔍 ESQUEMA ACTUAL: " + currentSchema);
-            
-        } catch (Exception e) {
-            System.err.println("❌ ERROR DURANTE EL DIAGNÓSTICO: " + e.getMessage());
-        }
-        System.out.println("=======================================================");
-        // --- FIN BLOQUE DE DIAGNÓSTICO ---
 
         if (userPersistence.findByDni(command.dni()).isPresent()) {
             throw new IllegalArgumentException("Ya existe un usuario con el DNI: " + command.dni());
