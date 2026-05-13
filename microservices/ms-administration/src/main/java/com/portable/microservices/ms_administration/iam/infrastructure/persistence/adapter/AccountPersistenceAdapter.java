@@ -34,12 +34,20 @@ public class AccountPersistenceAdapter implements AccountPersistencePortOut{
     }
     @Override
     public List<Account> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        return repository.findAll().stream().map(accountMapper::toDomain).toList();
+    }
+    @Override
+    public Optional<Account> findByUuid(java.util.UUID uuid) {
+        return repository.findByUuid(uuid).map(accountMapper::toDomain);
     }
     @Override
     public boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
+    }
+
+    @Override
+    public void deleteByUuid(java.util.UUID uuid) {
+        repository.deleteByUuid(uuid);
     }
 
 
