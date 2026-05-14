@@ -17,8 +17,12 @@ public class GetWarehouseUseCase implements GetWarehousePortIn {
 
     @Override
     public Warehouse execute(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        Warehouse warehouse = persistence.findById(id)
+            .orElseThrow(() -> new RuntimeException("Almacén no encontrado"));
+        if (!warehouse.activo()) {
+            throw new RuntimeException("Almacén no activo o no encontrado");
+        }
+        return warehouse;
     }
 
     

@@ -2,6 +2,9 @@ package com.portable.microservices.ms_inventory.locations.domain.model;
 
 import java.util.UUID;
 
+import lombok.Builder;
+
+@Builder(toBuilder = true)
 public record Warehouse(
     Long id,
     Long idSede, // FK hacia ms-administration

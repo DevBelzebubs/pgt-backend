@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.locations.infrastructure.persistence.adapter;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -47,6 +48,12 @@ public class WarehousePersistenceAdapter implements WarehousePersistencePortOut 
     public Warehouse save(Warehouse warehouse) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public List<Warehouse> findAllActives() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllActives'");
     }
 
 

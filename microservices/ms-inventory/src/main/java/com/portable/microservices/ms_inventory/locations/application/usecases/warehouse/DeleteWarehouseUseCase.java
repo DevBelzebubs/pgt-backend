@@ -2,6 +2,7 @@ package com.portable.microservices.ms_inventory.locations.application.usecases.w
 
 import org.springframework.stereotype.Service;
 
+import com.portable.microservices.ms_inventory.locations.domain.model.Warehouse;
 import com.portable.microservices.ms_inventory.locations.domain.ports.in.warehouse.DeleteWarehousePortIn;
 import com.portable.microservices.ms_inventory.locations.domain.ports.out.WarehousePersistencePortOut;
 
@@ -16,8 +17,14 @@ public class DeleteWarehouseUseCase implements DeleteWarehousePortIn {
 
     @Override
     public void execute(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        Warehouse existing = persistence.findById(id)
+            .orElseThrow(() -> new RuntimeException("Almacén no encontrado"));
+
+        Warehouse disabled = existing.toBuilder()
+            .activo(false)
+            .build();
+
+        persistence.save(disabled);
     }
 
 }
