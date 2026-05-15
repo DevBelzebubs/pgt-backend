@@ -18,9 +18,9 @@ public class GetWarehouseUseCase implements GetWarehousePortIn {
     @Override
     public Warehouse execute(Long id) {
         Warehouse warehouse = persistence.findById(id)
-            .orElseThrow(() -> new RuntimeException("Almacén no encontrado"));
+            .orElseThrow(() -> new IllegalStateException("Almacén no encontrado"));
         if (!warehouse.activo()) {
-            throw new RuntimeException("Almacén no activo o no encontrado");
+            throw new IllegalStateException("Almacén no activo o no encontrado");
         }
         return warehouse;
     }

@@ -18,7 +18,11 @@ public class UpdateWarehouseUseCase implements UpdateWarehousePortIn{
 @Override
     public Warehouse execute(Long id, Warehouse warehouse) {
         Warehouse existing = persistence.findById(id)
-            .orElseThrow(() -> new RuntimeException("Almacén no encontrado"));
+            .orElseThrow(() -> new IllegalStateException("Almacén no encontrado"));
+
+        if (existing.activo() == false) {
+            throw new IllegalStateException("El almacén está inactivo y no se puede actualizar");
+        }
 
         Warehouse updated = existing.toBuilder()
             // Si el nuevo codAlm no es nulo ni está vacío, úsalo. Si no, quédate con el existente.

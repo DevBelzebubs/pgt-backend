@@ -20,6 +20,10 @@ public class DeleteWarehouseUseCase implements DeleteWarehousePortIn {
         Warehouse existing = persistence.findById(id)
             .orElseThrow(() -> new RuntimeException("Almacén no encontrado"));
 
+        if (existing.activo() == false) {
+            throw new IllegalStateException("El almacén ya está inactivo");
+        }
+
         Warehouse disabled = existing.toBuilder()
             .activo(false)
             .build();

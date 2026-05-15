@@ -17,9 +17,14 @@ public class CreateWarehouseUseCase implements CreateWarehousePortIn{
     @Override
     public Warehouse execute(Warehouse warehouse) {
         if (persistence.existsByCodAlm(warehouse.codAlm())) {
-            throw new RuntimeException("El código de almacén ya existe");
+            throw new IllegalStateException("El código de almacén ya existe");
         }
-        return persistence.save(warehouse);
+        
+        Warehouse warehouseWithDefaults = warehouse.toBuilder()
+                .activo(true)
+                .build();
+        
+        return persistence.save(warehouseWithDefaults);
     }
 
 
