@@ -29,7 +29,7 @@ public class WarehouseJpaEntity {
 
     private String nombre;
     private String tipo;
-    private Boolean activo;
+    private Boolean activo = true;
 
     @PrePersist
     public void prePersist() {

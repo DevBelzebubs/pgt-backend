@@ -9,6 +9,7 @@ public record LocationResponse(
     String pasillo,
     String estante,
     String codBarras,
-    Integer capacidad
+    Integer capacidad,
+    Boolean activo
 ) {
 }

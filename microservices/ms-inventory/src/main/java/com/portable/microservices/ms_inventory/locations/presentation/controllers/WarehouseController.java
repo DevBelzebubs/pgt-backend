@@ -21,6 +21,7 @@ import com.portable.microservices.ms_inventory.locations.presentation.dto.Create
 import com.portable.microservices.ms_inventory.locations.presentation.dto.UpdateWarehouseRequest;
 import com.portable.microservices.ms_inventory.locations.presentation.dto.WarehouseResponse;
 import com.portable.microservices.ms_inventory.locations.presentation.mapper.WarehouseWebMapper;
+import com.portable.shared.infrastructure.presentation.ApiResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,39 +39,40 @@ public class WarehouseController {
     private final WarehouseWebMapper mapper;
 
     @PostMapping
-    public ResponseEntity<WarehouseResponse> create(@Valid @RequestBody CreateWarehouseRequest request) {
+    public ResponseEntity<ApiResponse<WarehouseResponse>> create(@Valid @RequestBody CreateWarehouseRequest request) {
         var domain = mapper.toDomain(request);
         var created = createWarehousePortIn.execute(domain);
         var response = mapper.toResponse(created);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Almacén creado exitosamente", response));
     }
-@PutMapping("/{id}")
-    public ResponseEntity<WarehouseResponse> update(@PathVariable Long id, @RequestBody UpdateWarehouseRequest request) {
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<WarehouseResponse>> update(@PathVariable Long id, @RequestBody UpdateWarehouseRequest request) {
         var domain = mapper.toDomain(request);
         var updated = updateWarehousePortIn.execute(id, domain);
         var response = mapper.toResponse(updated);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Almacén actualizado exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WarehouseResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<WarehouseResponse>> getById(@PathVariable Long id) {
         var warehouse = getWarehousePortIn.execute(id);
         var response = mapper.toResponse(warehouse);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Almacén encontrado", response));
     }
 
     @GetMapping
-    public ResponseEntity<List<WarehouseResponse>> getAll() {
+    public ResponseEntity<ApiResponse<List<WarehouseResponse>>> getAll() {
         var warehouses = listWarehousePortIn.execute();
         var responses = warehouses.stream()
                 .map(mapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(ApiResponse.ok("Lista de almacenes obtenida", responses));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         deleteWarehousePortIn.execute(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.ok("Almacén eliminado exitosamente", null));
     }
 }

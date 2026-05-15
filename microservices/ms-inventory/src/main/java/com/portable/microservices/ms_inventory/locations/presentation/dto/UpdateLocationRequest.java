@@ -5,8 +5,6 @@ public record UpdateLocationRequest(
     String zona,
     String pasillo,
     String estante,
-    String codBarras,
-    Integer capacidad,
-    Boolean activo
+    Integer capacidad
 ) {
 }

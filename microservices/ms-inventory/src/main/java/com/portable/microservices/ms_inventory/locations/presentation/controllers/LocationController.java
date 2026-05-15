@@ -22,6 +22,7 @@ import com.portable.microservices.ms_inventory.locations.presentation.dto.Create
 import com.portable.microservices.ms_inventory.locations.presentation.dto.LocationResponse;
 import com.portable.microservices.ms_inventory.locations.presentation.dto.UpdateLocationRequest;
 import com.portable.microservices.ms_inventory.locations.presentation.mapper.LocationWebMapper;
+import com.portable.shared.infrastructure.presentation.ApiResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,42 +39,42 @@ public class LocationController {
     private final DeleteLocationPortIn deleteLocationPortIn;
     private final LocationWebMapper mapper;
 
-    @PostMapping
-    public ResponseEntity<LocationResponse> create(@Valid @RequestBody CreateLocationRequest request) {
+   @PostMapping
+    public ResponseEntity<ApiResponse<LocationResponse>> create(@Valid @RequestBody CreateLocationRequest request) {
         var domain = mapper.toDomain(request);
         var created = createLocationPortIn.execute(domain);
         var response = mapper.toResponse(created);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Locación creada exitosamente", response));
     }
 
-@PutMapping("/{id}")
-    public ResponseEntity<LocationResponse> update(@PathVariable UUID id, @RequestBody UpdateLocationRequest request) {
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<LocationResponse>> update(@PathVariable UUID id, @RequestBody UpdateLocationRequest request) {
         var domain = mapper.toDomain(request);
-        // Ahora sí le pasamos el 'id' que viene en la URL
         var updated = updateLocationPortIn.execute(id, domain);
         var response = mapper.toResponse(updated);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Locación actualizada exitosamente", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LocationResponse> getById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<LocationResponse>> getById(@PathVariable UUID id) {
         var location = getLocationPortIn.execute(id);
         var response = mapper.toResponse(location);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok("Locación encontrada", response));
     }
 
     @GetMapping
-    public ResponseEntity<List<LocationResponse>> getAll() {
+    public ResponseEntity<ApiResponse<List<LocationResponse>>> getAll() {
         var locations = listLocationsPortIn.execute();
         var responses = locations.stream()
                 .map(mapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(ApiResponse.ok("Lista de locaciones obtenida", responses));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
         deleteLocationPortIn.execute(id);
-        return ResponseEntity.noContent().build();
+        // Enviamos null en la data, pero confirmamos el éxito con un mensaje
+        return ResponseEntity.ok(ApiResponse.ok("Locación eliminada exitosamente", null));
     }
 }
