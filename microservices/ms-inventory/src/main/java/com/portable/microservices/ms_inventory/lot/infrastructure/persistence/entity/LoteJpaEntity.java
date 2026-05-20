@@ -1,6 +1,8 @@
 package com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity;
 
 import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.entity.LocationJpaEntity;
+import com.portable.microservices.ms_inventory.product.infrastructure.persistence.entity.ProductJpaEntity;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +22,7 @@ public class LoteJpaEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
-    private ProductoJpaEntity producto;
+    private ProductJpaEntity producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_locacion", nullable = false)
@@ -46,11 +48,11 @@ public class LoteJpaEntity {
         this.idLote = idLote;
     }
 
-    public ProductoJpaEntity getProducto() {
+    public ProductJpaEntity getProducto() {
         return producto;
     }
 
-    public void setProducto(ProductoJpaEntity producto) {
+    public void setProducto(ProductJpaEntity producto) {
         this.producto = producto;
     }
 

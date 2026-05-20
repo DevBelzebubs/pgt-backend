@@ -5,6 +5,7 @@ import java.util.UUID;
 
 
 import com.portable.microservices.ms_inventory.movement.infrastructure.persistence.entity.MovimientoJpaEntity;
+import com.portable.microservices.ms_inventory.product.infrastructure.persistence.entity.ProductJpaEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +36,7 @@ public class KardexJpaEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
-    private ProductoJpaEntity producto;
+    private ProductJpaEntity producto;
 
     @Column(nullable = false)
     private Integer stockAnterior = 0;
@@ -68,11 +69,11 @@ public class KardexJpaEntity {
         this.movimiento = movimiento;
     }
 
-    public ProductoJpaEntity getProducto() {
+    public ProductJpaEntity getProducto() {
         return producto;
     }
 
-    public void setProducto(ProductoJpaEntity producto) {
+    public void setProducto(ProductJpaEntity producto) {
         this.producto = producto;
     }
 

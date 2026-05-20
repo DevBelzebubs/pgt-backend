@@ -4,6 +4,10 @@ import com.portable.shared.infrastructure.config.RabbitMQConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +16,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PickingEventListener {
 
-    @RabbitListener(queues = RabbitMQConfig.INVENTORY_PICKING_QUEUE)
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = RabbitMQConfig.INVENTORY_PICKING_QUEUE, durable = "true"),
+            exchange = @Exchange(value = RabbitMQConfig.TRACKING_EXCHANGE, type = "topic"),
+            key = RabbitMQConfig.ROUTING_KEY
+    ))
     public void handlePickingCompleted(PickingCompletedMessage message) {
         log.info("🛒 ¡Orden de Picking recibida en ms-inventory! Orden ID: {}", message.ordenId());
         log.info("👤 Operario ID: {}", message.usuarioId());
