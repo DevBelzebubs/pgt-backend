@@ -43,6 +43,16 @@ spring:
           uri: lb://ms-administration
           predicates:
             - Path=/api/v1/roles/**
+        
+        - id: ms-inventory-locations
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/locations/**
+
+        - id: ms-inventory-warehouses
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/warehouses/**
 eureka:
   client:
     service-url:
