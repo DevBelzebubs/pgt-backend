@@ -34,10 +34,20 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Público: login y registro de usuario
-                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-                // Todo lo demás requiere JWT válido
+                // Endpoints públicos de autenticación y creación de usuarios
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/users/**").permitAll()
+
+                // Endpoints públicos de productos (solo lectura)
+                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                .requestMatchers("/api/v1/products/count").permitAll()
+
+                // Endpoints protegidos de productos (crear, editar, eliminar)
+                .requestMatchers(HttpMethod.POST, "/api/v1/products/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").authenticated()
+
+                // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
