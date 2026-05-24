@@ -3,6 +3,7 @@ package com.portable.microservices.ms_administration.iam.infrastructure.security
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,15 +16,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Reads the Authorization header, validates the JWT and sets the
- * SecurityContext so Spring Security can apply its authorization rules.
- */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+        return HttpMethod.POST.matches(method) && (
+            path.equals("/api/v1/auth/login") || path.equals("/api/v1/users")
+        );
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
