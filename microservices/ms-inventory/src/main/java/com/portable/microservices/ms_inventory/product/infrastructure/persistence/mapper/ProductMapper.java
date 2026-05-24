@@ -2,44 +2,72 @@ package com.portable.microservices.ms_inventory.product.infrastructure.persisten
 
 import com.portable.microservices.ms_inventory.product.domain.model.Product;
 import com.portable.microservices.ms_inventory.product.infrastructure.persistence.entity.ProductJpaEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 @Component
+@RequiredArgsConstructor
 public class ProductMapper {
 
+    private final CategoryMapper categoryMapper;
+    private final BrandMapper brandMapper;
+
     public ProductJpaEntity toEntity(Product product) {
-        if (product == null) return null;
+        if (product == null) {
+            return null;
+        }
 
         return ProductJpaEntity.builder()
-                .id(product.id())
-                .categoryId(product.categoryId())
-                .brandId(product.brandId())
-                .codProd(product.codProd())
-                .codAnexo(product.codAnexo())
+                .id_producto(product.id())
+                .id_categoria(categoryMapper.toEntityById(product.categoryId()))
+                .id_marca(brandMapper.toEntityById(product.brandId()))
+                .cod_prod(product.codProd())
+                .cod_anexo(product.codAnexo())
                 .descripcion(product.descripcion())
-                .modelosCompatibles(product.modelosCompatibles())
-                .preCom(product.preCom())
-                .preVen(product.preVen())
+                .modelos_compatibles(product.modelosCompatibles())
+                .pre_com(product.preCom())
+                .pre_ven(product.preVen())
                 .estado(product.estado())
-                .fecCreacion(product.fecCreacion())
+                .fec_creacion(toOffsetDateTime(product.fecCreacion()))
+                .stock_minimo(0)
                 .build();
     }
 
     public Product toDomain(ProductJpaEntity entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
 
         return new Product(
-                entity.getId(),
-                entity.getCategoryId(),
-                entity.getBrandId(),
-                entity.getCodProd(),
-                entity.getCodAnexo(),
+                entity.getId_producto(),
+                entity.getId_categoria() != null ? entity.getId_categoria().getId() : null,
+                entity.getId_marca() != null ? entity.getId_marca().getId() : null,
+                entity.getCod_prod(),
+                entity.getCod_anexo(),
                 entity.getDescripcion(),
-                entity.getModelosCompatibles(),
-                entity.getPreCom(),
-                entity.getPreVen(),
-                entity.isEstado(),
-                entity.getFecCreacion()
+                entity.getModelos_compatibles(),
+                entity.getPre_com(),
+                entity.getPre_ven(),
+                Boolean.TRUE.equals(entity.getEstado()),
+                toZonedDateTime(entity.getFec_creacion())
         );
+    }
+
+    private OffsetDateTime toOffsetDateTime(ZonedDateTime zonedDateTime) {
+        if (zonedDateTime == null) {
+            return null;
+        }
+        return zonedDateTime.toOffsetDateTime();
+    }
+
+    private ZonedDateTime toZonedDateTime(OffsetDateTime offsetDateTime) {
+        if (offsetDateTime == null) {
+            return null;
+        }
+        return offsetDateTime.atZoneSameInstant(ZoneId.systemDefault());
     }
 }

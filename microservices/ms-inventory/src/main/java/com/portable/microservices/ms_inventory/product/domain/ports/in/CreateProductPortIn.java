@@ -2,18 +2,19 @@ package com.portable.microservices.ms_inventory.product.domain.ports.in;
 
 import com.portable.microservices.ms_inventory.product.domain.model.Product;
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface CreateProductPortIn {
     Product execute(CreateProductCommand command);
 
     record CreateProductCommand(
-        Long categoryId,
-        Long brandId,
-        String codProd,
-        String codAnexo,
+        Long id_categoria,
+        Long id_marca,
+        String cod_prod,
+        String cod_anexo,
         String descripcion,
-        String modelosCompatibles,
-        java.math.BigDecimal preCom,
-        java.math.BigDecimal preVen
+        List<String> modelos_compatibles,
+        BigDecimal pre_com,
+        BigDecimal pre_ven
     ) {}
 }

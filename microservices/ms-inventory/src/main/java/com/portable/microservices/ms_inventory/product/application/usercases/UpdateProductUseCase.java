@@ -23,15 +23,15 @@ public class UpdateProductUseCase implements UpdateProductPortIn {
 
         Product actualizado = new Product(
                 existing.id(),
-                command.categoryId(),
-                command.brandId(),
-                command.codProd(),
-                command.codAnexo(),
-                command.descripcion(),
-                command.modelosCompatibles(),
+                command.id_categoria() != null ? command.id_categoria() : existing.categoryId(),
+                command.id_marca() != null ? command.id_marca() : existing.brandId(),
+                command.cod_prod() != null ? command.cod_prod() : existing.codProd(),
+                command.cod_anexo() != null ? command.cod_anexo() : existing.codAnexo(),
+                command.descripcion() != null ? command.descripcion() : existing.descripcion(),
+                command.modelosCompatibles() != null ? command.modelosCompatibles() : existing.modelosCompatibles(),
                 existing.preCom(),
                 existing.preVen(),
-                command.estado(),
+                command.estado() != null ? command.estado() : existing.estado(),
                 existing.fecCreacion()
         );
 

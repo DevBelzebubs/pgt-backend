@@ -53,6 +53,22 @@ spring:
           uri: lb://ms-inventory
           predicates:
             - Path=/api/v1/warehouses/**
+
+        - id: ms-inventory-products
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/products/**
+
+        - id: ms-inventory-categories
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/categories/**
+
+        - id: ms-inventory-brands
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/brands/**
+
 eureka:
   client:
     service-url:

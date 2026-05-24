@@ -1,9 +1,10 @@
-package com.portable.erp.api_gateway.infrastructure.security;
+package com.portable.microservices.ms_inventory.shared.infrastructure.security.jwt;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,29 +22,22 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    public void validateToken(final String token) {
+    public Claims validateToken(String token) {
         if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Token vacío o nulo");
         }
-        Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token);
+        return Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    public String getErrorReason(Exception e) {
-        if (e instanceof ExpiredJwtException) {
-            return "Token expirado";
-        }
-        if (e instanceof MalformedJwtException) {
-            return "Token malformado";
-        }
-        if (e instanceof SecurityException) {
-            return "Firma del token inválida";
-        }
-        if (e instanceof UnsupportedJwtException) {
-            return "Tipo de token no soportado";
-        }
-        if (e instanceof IllegalArgumentException) {
-            return "Token vacío o nulo";
-        }
+    public String getErrorReason(JwtException e) {
+        if (e instanceof ExpiredJwtException) return "Token expirado";
+        if (e instanceof MalformedJwtException) return "Token malformado";
+        if (e instanceof SecurityException) return "Firma del token inválida";
+        if (e instanceof UnsupportedJwtException) return "Tipo de token no soportado";
         return "Error de autenticación: " + e.getMessage();
     }
 }
