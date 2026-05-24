@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.portable.microservices.ms_administration.iam.infrastructure.security.jwt.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -33,21 +34,27 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write(String.format(
+                        "{\"success\":false,\"status\":401,\"error\":\"Unauthorized\",\"message\":\"%s\"}",
+                        authException.getMessage() != null
+                            ? "No autenticado: " + authException.getMessage()
+                            : "No autenticado: se requiere token JWT"
+                    ));
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write(
+                        "{\"success\":false,\"status\":403,\"error\":\"Forbidden\",\"message\":\"Acceso denegado: no tienes permisos para este recurso\"}");
+                })
+            )
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos de autenticación y creación de usuarios
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/users/**").permitAll()
-
-                // Endpoints públicos de productos (solo lectura)
-                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
-                .requestMatchers("/api/v1/products/count").permitAll()
-
-                // Endpoints protegidos de productos (crear, editar, eliminar)
-                .requestMatchers(HttpMethod.POST, "/api/v1/products/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").authenticated()
-
-                // Todo lo demás requiere autenticación
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

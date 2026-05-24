@@ -19,20 +19,20 @@ public class CreateProductUseCase implements CreateProductPortIn {
     @Transactional
     public Product execute(CreateProductCommand command) {
         if (productPersistence.findAll().stream()
-                .anyMatch(p -> p.codProd().equals(command.codProd()))) {
-            throw new IllegalArgumentException("Ya existe un producto con el código: " + command.codProd());
+                .anyMatch(p -> p.codProd().equals(command.cod_prod()))) {
+            throw new IllegalArgumentException("Ya existe un producto con el código: " + command.cod_prod());
         }
 
         Product nuevo = new Product(
             UUID.randomUUID(),
-            command.categoryId(),
-            command.brandId(),
-            command.codProd(),
-            command.codAnexo(),
+            command.id_categoria(),
+            command.id_marca(),
+            command.cod_prod(),
+            command.cod_anexo(),
             command.descripcion(),
-            command.modelosCompatibles(),
-            command.preCom(),
-            command.preVen(),
+            command.modelos_compatibles(),
+            command.pre_com(),
+            command.pre_ven(),
             true,
             ZonedDateTime.now()
         );

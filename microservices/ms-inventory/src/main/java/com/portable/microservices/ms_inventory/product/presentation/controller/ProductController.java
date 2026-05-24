@@ -59,9 +59,9 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ProductResponse> update(@PathVariable UUID id,
-                                                  @Valid @RequestBody UpdateProductUseCase.UpdateProductCommand command) {
+                                                  @RequestBody UpdateProductUseCase.UpdateProductCommand command) {
         Product updated = updateProductUseCase.execute(id, command);
         return ResponseEntity.ok(presentationMapper.toResponse(updated));
     }
