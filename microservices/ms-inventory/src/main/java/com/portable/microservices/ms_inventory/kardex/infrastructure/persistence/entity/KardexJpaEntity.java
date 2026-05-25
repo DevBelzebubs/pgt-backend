@@ -16,9 +16,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
+
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 
 @NoArgsConstructor
@@ -52,6 +52,7 @@ public class KardexJpaEntity {
 
     @Column(nullable = false, precision = 12, scale = 4)
     private BigDecimal costoProm;
+
 
     public UUID getIdKardex() {
         return idKardex;
