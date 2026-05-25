@@ -13,7 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,66 +25,65 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "producto", schema = "inventory", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "uk_product_name"),
-    @UniqueConstraint(columnNames = "ccod_prod")
-})
+@Table(
+        name = "producto",
+        schema = "inventory",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_product_code", columnNames = "cod_prod")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProductJpaEntity {
-    
+
     @Id
-    @GeneratedValue
     @Column(name = "id_producto", updatable = false, nullable = false)
-    private UUID id;
+    private UUID id_producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name = "id_categoria",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_product_category")
+            name = "id_categoria",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_cat_producto")
     )
-    private CategoryJpaEntity category;
+    private CategoryJpaEntity id_categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name = "id_marca",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_product_brand")
+            name = "id_marca",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_marca_producto")
     )
-    private BrandJpaEntity brand;
+    private BrandJpaEntity id_marca;
 
     @Column(name = "cod_prod", nullable = false, length = 30)
-    private String productCode;
+    private String cod_prod;
 
     @Column(name = "cod_anexo", length = 30)
-    private String manufactureCode;
+    private String cod_anexo;
 
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
-    private String description;
+    private String descripcion;
 
     @Type(JsonBinaryType.class)
-    @Column(
-            name = "modelos_compatibles",
-            columnDefinition = "jsonb"
-    )
-    private List<String> compatibleModels;
+    @Column(name = "modelos_compatibles", columnDefinition = "jsonb")
+    private List<String> modelos_compatibles;
 
     @Column(name = "pre_com", precision = 12, scale = 4, nullable = false)
-    private BigDecimal purchasePrice;
+    private BigDecimal pre_com;
 
     @Column(name = "pre_ven", precision = 12, scale = 4, nullable = false)
-    private BigDecimal salePrice;
+    private BigDecimal pre_ven;
 
     @Column(name = "estado")
-    private Boolean status;
+    private Boolean estado;
 
     @Column(name = "fec_creacion", updatable = false)
-    private OffsetDateTime creationDate;
+    private OffsetDateTime fec_creacion;
 
     @Column(name = "stock_minimo", nullable = false)
-    private Integer minimunStock;
+    private Integer stock_minimo;
 }
