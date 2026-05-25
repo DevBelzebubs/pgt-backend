@@ -1,7 +1,6 @@
 package com.portable.microservices.ms_inventory.product.presentation.mapper;
 
 import com.portable.microservices.ms_inventory.product.domain.model.Category;
-import com.portable.microservices.ms_inventory.product.presentation.dto.CategoryRequest;
 import com.portable.microservices.ms_inventory.product.presentation.dto.CategoryResponse;
 import org.springframework.stereotype.Component;
 

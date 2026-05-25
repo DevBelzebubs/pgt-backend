@@ -1,4 +1,5 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.messaging.listener;
+import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterEntradaPortIn;
 import com.portable.microservices.ms_inventory.movement.infrastructure.messaging.dto.PickingCompletedMessage;
 import com.portable.shared.infrastructure.config.RabbitMQConfig;
 
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PickingEventListener {
 
+    private final RegisterEntradaPortIn registerEntradaPortIn;
+
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = RabbitMQConfig.INVENTORY_PICKING_QUEUE, durable = "true"),
             exchange = @Exchange(value = RabbitMQConfig.TRACKING_EXCHANGE, type = "topic"),
@@ -30,11 +33,12 @@ public class PickingEventListener {
                      item.productoId(), item.locacionId(), item.cantidadRealRecogida());
         });
         try {
-            // registrarSalidaUseCase.execute(message);
+            // Nota: Este listener registra SALIDA (descuento) de picking
+            // Para ahora solo log. En futuro se conectará con RegisterSalidaUseCase
             
-            log.info("Salida de inventario registrada con éxito por picking.");
+            log.info("Evento de picking procesado exitosamente.");
         } catch (Exception e) {
-            log.error("Error procesando salida de picking: {}", e.getMessage());
+            log.error("Error procesando evento de picking: {}", e.getMessage());
             throw e;
         }
     }
