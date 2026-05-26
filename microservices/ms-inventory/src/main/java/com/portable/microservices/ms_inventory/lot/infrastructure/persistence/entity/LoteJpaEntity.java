@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(schema = "inventory", name = "lote")
 public class LoteJpaEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idLote;
@@ -40,8 +40,30 @@ public class LoteJpaEntity {
     @Column(length = 20)
     private String estado = "DISPONIBLE";
 
+    @Column(length = 150)
+    private String proveedor;
+    
+    @Column(name = "cod_prov", length = 30)
+    private String codProv;
+
     public UUID getIdLote() {
         return idLote;
+    }
+
+    public String getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
+
+    public String getCodProv() {
+        return codProv;
+    }
+
+    public void setCodProv(String codProv) {
+        this.codProv = codProv;
     }
 
     public void setIdLote(UUID idLote) {
@@ -95,5 +117,5 @@ public class LoteJpaEntity {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    
+
 }
