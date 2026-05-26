@@ -39,4 +39,16 @@ public record Movimiento(
                 docRef
         );
     }
+
+    public static Movimiento crearSalida(UUID idLote, Long idUsuario, String motivo, String docRef) {
+        return new Movimiento(
+                null,
+                idLote,
+                idUsuario,
+                TipoMovimiento.SALIDA.name(),
+                null,
+                motivo,
+                docRef
+        );
+    }
 }

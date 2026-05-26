@@ -13,6 +13,8 @@ import com.portable.microservices.ms_inventory.locations.infrastructure.persiste
 import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.mapper.LocationPersistenceMapper;
 import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.repository.LocationJpaRepository;
 
+import lombok.NonNull;
+
 @Component
 public class LocationPersistenceAdapter implements LocationPersistencePortOut {
 
@@ -38,7 +40,7 @@ public class LocationPersistenceAdapter implements LocationPersistencePortOut {
     }
 
     @Override
-    public Optional<Location> findById(UUID idLocacion) {
+    public Optional<Location> findById(@NonNull UUID idLocacion) {
         return repository.findById(idLocacion).map(mapper::toDomain);
     }
 
