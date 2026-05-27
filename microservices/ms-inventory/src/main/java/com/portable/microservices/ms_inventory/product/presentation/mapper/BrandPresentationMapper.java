@@ -1,7 +1,6 @@
 package com.portable.microservices.ms_inventory.product.presentation.mapper;
 
 import com.portable.microservices.ms_inventory.product.domain.model.Brand;
-import com.portable.microservices.ms_inventory.product.presentation.dto.BrandRequest;
 import com.portable.microservices.ms_inventory.product.presentation.dto.BrandResponse;
 import org.springframework.stereotype.Component;
 

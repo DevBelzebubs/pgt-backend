@@ -4,9 +4,8 @@ import com.portable.microservices.ms_inventory.locations.infrastructure.persiste
 import com.portable.microservices.ms_inventory.product.infrastructure.persistence.entity.ProductJpaEntity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
