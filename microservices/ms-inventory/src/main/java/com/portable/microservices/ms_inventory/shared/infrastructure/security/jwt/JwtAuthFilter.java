@@ -31,7 +31,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (!HttpMethod.GET.matches(method)) return false;
         return path.startsWith("/api/v1/products")
             || path.startsWith("/api/v1/brands")
-            || path.startsWith("/api/v1/categories");
+            || path.startsWith("/api/v1/categories")
+            || path.startsWith("/api/v1/kardex")
+            || path.startsWith("/ws");
     }
 
     @Override

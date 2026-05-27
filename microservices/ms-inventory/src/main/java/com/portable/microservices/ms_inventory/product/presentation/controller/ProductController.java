@@ -4,15 +4,24 @@ import com.portable.microservices.ms_inventory.product.application.usercases.Cre
 import com.portable.microservices.ms_inventory.product.application.usercases.FindProductUseCase;
 import com.portable.microservices.ms_inventory.product.application.usercases.UpdateProductUseCase;
 import com.portable.microservices.ms_inventory.product.application.usercases.DeleteProductUseCase;
+import com.portable.microservices.ms_inventory.product.application.usercases.ExportProductUseCase;
 import com.portable.microservices.ms_inventory.product.domain.model.Product;
+import com.portable.microservices.ms_inventory.product.domain.ports.in.ExportProductPortIn.ExportFormat;
 import com.portable.microservices.ms_inventory.product.presentation.dto.CreateProductRequest;
 import com.portable.microservices.ms_inventory.product.presentation.dto.ProductResponse;
 import com.portable.microservices.ms_inventory.product.presentation.mapper.ProductPresentationMapper;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +35,7 @@ public class ProductController {
     private final UpdateProductUseCase updateProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
     private final ProductPresentationMapper presentationMapper;
+    private final ExportProductUseCase exportProductUseCase;
 
     @PostMapping
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest request) {
@@ -76,4 +86,26 @@ public class ProductController {
     public ResponseEntity<Long> count() {
         return ResponseEntity.ok(findProductUseCase.count());
     }
+    @GetMapping("/export")
+public ResponseEntity<Resource> exportToExcel(@RequestParam(defaultValue = "EXCEL") String format) {
+    ExportFormat exportFormat;
+    try {
+        exportFormat = ExportFormat.valueOf(format.toUpperCase());
+    } catch (IllegalArgumentException e) {
+        exportFormat = ExportFormat.EXCEL;
+    }
+    Resource resource = exportProductUseCase.exportToFormat(exportFormat);
+    String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+    String extension = exportFormat == ExportFormat.PDF ? "pdf" : "xlsx";
+    String filename = "inventario-productos-" + fecha + "." + extension;
+    
+    String mediaType = exportFormat == ExportFormat.PDF 
+        ? "application/pdf" 
+        : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+        .contentType(MediaType.parseMediaType(mediaType))
+        .body(resource);
+}
 }

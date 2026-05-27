@@ -17,4 +17,14 @@ public interface KardexJpaRepository extends JpaRepository<KardexJpaEntity, UUID
 
     @Query("SELECT k FROM KardexJpaEntity k WHERE k.producto.id_producto = :idProducto ORDER BY k.movimiento.fecha DESC, k.idKardex DESC")
     List<KardexJpaEntity> findLatestByProducto(@Param("idProducto") UUID idProducto, Pageable pageable);
+ 
+    @Query("SELECT k FROM KardexJpaEntity k WHERE k.producto.id_producto = :productId ORDER BY k.idKardex DESC")
+    List<KardexJpaEntity> findByProductoIdOrderByIdKardexDesc(@Param("productId") UUID productId);
+    default Optional<KardexJpaEntity> findTopByProductoIdOrderByIdKardexDesc(UUID productId) {
+        List<KardexJpaEntity> lista = findByProductoIdOrderByIdKardexDesc(productId);
+        return lista.isEmpty() ? Optional.empty() : Optional.of(lista.get(0));
+    }
+  
+    @Query("SELECT k FROM KardexJpaEntity k WHERE k.producto.id_producto = :productId ORDER BY k.idKardex ASC")
+    List<KardexJpaEntity> findByProductoIdOrderByIdKardexAsc(@Param("productId") UUID productId);
 }
