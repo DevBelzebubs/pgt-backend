@@ -55,6 +55,7 @@ public class RegisterAjustePositivoUseCase implements RegisterAjustePositivoPort
         Movimiento movimiento = Movimiento.crearAjustePositivo(
                 idLote,
                 idUsuario,
+                cantidad,
                 motivo,
                 docRef
         );

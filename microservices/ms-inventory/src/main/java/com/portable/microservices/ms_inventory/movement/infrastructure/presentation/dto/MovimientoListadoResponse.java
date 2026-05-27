@@ -12,7 +12,9 @@ public record MovimientoListadoResponse(
     String nroLote,
     String producto,
     String sku,
-    Integer cantidad,
+    Integer cantidadIngreso,
+    Integer cantidadSalida,
+    Integer stockActual,
     String locacion,
     String usuario
 ) {}

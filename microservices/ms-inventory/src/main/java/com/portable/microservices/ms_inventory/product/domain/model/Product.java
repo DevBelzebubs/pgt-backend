@@ -16,5 +16,10 @@ public record Product(
     BigDecimal preCom,
     BigDecimal preVen,
     boolean estado,
-    ZonedDateTime fecCreacion
-) {}
+    ZonedDateTime fecCreacion,
+    Integer stockTotal
+) {
+    public Product {
+        stockTotal = stockTotal != null ? stockTotal : 0;
+    }
+}

@@ -27,19 +27,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String method = request.getMethod();
-        String path = request.getRequestURI();
-        if (!HttpMethod.GET.matches(method)) return false;
-        return path.startsWith("/api/v1/products")
-            || path.startsWith("/api/v1/brands")
-            || path.startsWith("/api/v1/categories")
-            || path.startsWith("/api/v1/kardex")
-            || path.startsWith("/ws");
+    String path = request.getRequestURI();
+    if (!HttpMethod.GET.matches(method)) return false;
+    return path.startsWith("/api/v1/products")
+        || path.startsWith("/api/v1/brands")
+        || path.startsWith("/api/v1/categories")
+        || path.startsWith("/api/v1/kardex")
+        || path.startsWith("/api/v1/movimientos")
+        || path.startsWith("/api/v1/locations")
+        || path.startsWith("/ws");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
@@ -52,8 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 var auth = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                );
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role)));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (JwtException e) {
                 SecurityContextHolder.clearContext();

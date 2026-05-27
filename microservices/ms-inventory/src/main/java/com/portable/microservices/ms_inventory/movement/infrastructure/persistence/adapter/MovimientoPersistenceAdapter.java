@@ -1,6 +1,7 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.persistence.adapter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -97,5 +98,31 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     @Override
     public LoteJpaEntity update(@NonNull LoteJpaEntity lote) {
         return loteRepository.save(lote);
+    }
+
+    @Override
+    public List<Object[]> findAllWithFilters(String tipo, LocalDate fechaDesde, LocalDate fechaHasta,
+                                              UUID idProducto, String texto, int pagina, int tamanioPagina) {
+        List<Object[]> results = movimientoRepository.findAllWithFilters(tipo, fechaDesde, fechaHasta, idProducto, texto);
+        int fromIndex = pagina * tamanioPagina;
+        if (fromIndex >= results.size()) return List.of();
+        int toIndex = Math.min(fromIndex + tamanioPagina, results.size());
+        return results.subList(fromIndex, toIndex);
+    }
+
+    @Override
+    public long countAllWithFilters(String tipo, LocalDate fechaDesde, LocalDate fechaHasta,
+                                     UUID idProducto, String texto) {
+        return movimientoRepository.countAllWithFilters(tipo, fechaDesde, fechaHasta, idProducto, texto);
+    }
+
+    @Override
+    public Optional<Object[]> findByIdWithDetails(UUID id) {
+        return movimientoRepository.findByIdWithDetails(id).stream().findFirst();
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        movimientoRepository.deleteById(id);
     }
 }

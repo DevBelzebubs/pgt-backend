@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record RegistrarMovimientoRequest(
@@ -12,7 +13,7 @@ public record RegistrarMovimientoRequest(
     UUID idProducto,
     UUID idLote,
     String idLocacion,
-    @Positive int cantidad,
+    @NotNull @Positive Integer cantidad,
     @NotBlank String motivo,
     String documentoRef,
     String proveedor,

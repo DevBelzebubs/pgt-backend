@@ -24,18 +24,26 @@ public class ProductPersistenceAdapter implements ProductPersistencePortOut {
     public Product save(Product product) {
         ProductJpaEntity entity = mapper.toEntity(product);
         ProductJpaEntity saved = repository.save(entity);
-        return mapper.toDomain(saved);
+        Integer stockTotal = repository.sumStockByProductId(saved.getId_producto());
+        return mapper.toDomain(saved, stockTotal);
     }
 
     @Override
     public Optional<Product> findById(UUID id) {
-        return repository.findById(id).map(mapper::toDomain);
+        return repository.findById(id)
+                .map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                });
     }
 
     @Override
     public List<Product> findAll() {
         return repository.findAll().stream()
-                .map(mapper::toDomain)
+                .map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                })
                 .collect(Collectors.toList());
     }
 

@@ -1,4 +1,4 @@
-package com.portable.microservices.ms_inventory.movement.application.application.usecases;
+package com.portable.microservices.ms_inventory.movement.application.usecases;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,13 +28,13 @@ public class RegisterIngresoUseCase implements RegisterIngresoPortIn {
     private final MovementPersistencePortOut movementPersistence;
     private final KardexPersistencePortOut kardexPersistence;
     private final CostoPromedioCalculator costoPromedioCalculator;
-    
+
     // TODO: Inyectar el publisher de eventos Rabbit
     // private final MovementRabbitPublisher eventPublisher;
     @Override
     @Transactional
     public void execute(RegisterIngresoCommand command) {
-        
+
         // ============================================
         // PASO 1: Validaciones básicas
         // ============================================
@@ -58,7 +58,7 @@ public class RegisterIngresoUseCase implements RegisterIngresoPortIn {
             command.proveedor(),
             command.codProv()
         );
-        
+
         Lot lotGuardado = lotPersistence.save(lot);
         Movement movimiento = new Movement(
             null,
@@ -70,14 +70,14 @@ public class RegisterIngresoUseCase implements RegisterIngresoPortIn {
             command.motivo(),
             command.docRef()
         );
-        
+
         Movement movimientoGuardado = movementPersistence.save(movimiento);
         // ============================================
         // PASO 4: Calcular PPP (Costo Promedio Ponderado)
         // ============================================
         Optional<Kardex> ultimoKardex = kardexPersistence.findLastByProductId(command.productId());
-        
-        CostoPromedioCalculator.ResultadoCalculoPPP resultadoPPP = 
+
+        CostoPromedioCalculator.ResultadoCalculoPPP resultadoPPP =
             costoPromedioCalculator.calcularParaIngreso(
                 ultimoKardex,
                 command.cantidad(),
@@ -93,7 +93,7 @@ public class RegisterIngresoUseCase implements RegisterIngresoPortIn {
             resultadoPPP.stockActual(),
             resultadoPPP.costoPromNuevo()
         );
-        
+
         kardexPersistence.save(kardex);
         // ============================================
         // PASO 6: Publicar evento (RabbitMQ)

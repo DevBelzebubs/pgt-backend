@@ -34,7 +34,8 @@ public class CreateProductUseCase implements CreateProductPortIn {
             command.pre_com(),
             command.pre_ven(),
             true,
-            ZonedDateTime.now()
+            ZonedDateTime.now(),
+            0
         );
 
         return productPersistence.save(nuevo);
