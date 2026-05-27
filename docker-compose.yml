@@ -24,8 +24,12 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pgt.com
       PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     ports:
       - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
     depends_on:
       - postgres
     networks:
@@ -220,3 +224,4 @@ networks:
     driver: bridge
 volumes:
   postgres-db-data:
+  pgadmin-data:
