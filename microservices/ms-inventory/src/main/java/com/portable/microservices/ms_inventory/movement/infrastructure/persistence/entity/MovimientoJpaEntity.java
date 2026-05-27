@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(schema = "inventory", name = "movimiento")
 public class MovimientoJpaEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idMovimiento;
@@ -38,4 +38,7 @@ public class MovimientoJpaEntity {
 
     @Column(length = 100)
     private String docRef;
+
+    @Column(nullable = false)
+    private Integer cantidad;
 }
