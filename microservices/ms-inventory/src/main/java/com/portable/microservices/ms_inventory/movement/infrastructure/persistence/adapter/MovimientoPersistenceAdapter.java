@@ -71,10 +71,9 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
         
         ProductJpaEntity producto = movimiento.getLote().getProducto();
 
-        // Para el caso de registro de entrada simple sin historial de kardex por fecha,
-        // consideramos stock anterior como 0 y el stock actual como la cantidad ingresada.
-        Integer stockAnterior = 0;
-        Integer stockActual = cantidad;
+        // Obtener stock actual antes de la entrada para calcular acumulado dinámicamente
+        Integer stockAnterior = getStockActual(producto.getId_producto());
+        Integer stockActual = stockAnterior + cantidad;
 
         // Crear registro en kardex
         KardexJpaEntity kardex = new KardexJpaEntity();
@@ -90,6 +89,45 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     }
 
     @Override
+    public KardexJpaEntity registrarSalida(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, BigDecimal costoProm) {
+        // Obtener movimiento y producto
+        MovimientoJpaEntity movimiento = movimientoRepository.findById(idMovimiento)
+                .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado"));
+        
+        ProductJpaEntity producto = movimiento.getLote().getProducto();
+
+        // Obtener stock actual antes de la salida para validar y calcular acumulado dinámicamente
+        Integer stockAnterior = getStockActual(producto.getId_producto());
+        
+        if (stockAnterior < cantidad) {
+            throw new IllegalArgumentException("Stock insuficiente para realizar la salida. Stock disponible: " + stockAnterior);
+        }
+        
+        Integer stockActual = stockAnterior - cantidad;
+
+        // Crear registro en kardex
+        KardexJpaEntity kardex = new KardexJpaEntity();
+        kardex.setMovimiento(movimiento);
+        kardex.setProducto(producto);
+        kardex.setStockAnterior(stockAnterior);
+        kardex.setCantIngreso(0);
+        kardex.setCantSalida(cantidad);
+        kardex.setStockActual(stockActual);
+        kardex.setCostoProm(costoProm);
+
+        return kardexRepository.save(kardex);
+    }
+
+    @Override
+    public Integer getStockActual(UUID idProducto) {
+        return kardexRepository.findLatestByProducto(idProducto, org.springframework.data.domain.PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .map(KardexJpaEntity::getStockActual)
+                .orElse(0);
+    }
+
+    @Override
     public Optional<LoteJpaEntity> findLoteById(@NonNull UUID idLote) {
         return loteRepository.findById(idLote);
     }
@@ -97,5 +135,10 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     @Override
     public LoteJpaEntity update(@NonNull LoteJpaEntity lote) {
         return loteRepository.save(lote);
+    }
+
+    @Override
+    public List<LoteJpaEntity> findLotesByProductAndLocation(UUID idProducto, UUID idLocacion) {
+        return loteRepository.findByProductoAndLocacionOrderByFecIngresoAsc(idProducto, idLocacion);
     }
 }

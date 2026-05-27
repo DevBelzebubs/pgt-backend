@@ -12,6 +12,8 @@ import com.portable.microservices.ms_inventory.locations.infrastructure.persiste
 import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.mapper.WarehousePersistenceMapper;
 import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.repository.WarehouseJpaRepository;
 
+import lombok.NonNull;
+
 @Component
 public class WarehousePersistenceAdapter implements WarehousePersistencePortOut {
 
@@ -33,12 +35,12 @@ public class WarehousePersistenceAdapter implements WarehousePersistencePortOut 
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return repository.existsById(id);
     }
 
     @Override
-    public Optional<Warehouse> findById(Long id) {
+    public Optional<Warehouse> findById(@NonNull Long id) {
        return repository.findById(id).map(mapper::toDomain);
     }
 
@@ -48,7 +50,7 @@ public class WarehousePersistenceAdapter implements WarehousePersistencePortOut 
         WarehouseJpaEntity entity = mapper.toEntity(warehouse);
         
         // 2. Lo guardamos en la tabla
-        WarehouseJpaEntity savedEntity = repository.save(entity);
+        WarehouseJpaEntity savedEntity = repository.save( entity);
         
         // 3. Convertimos la Entidad guardada de regreso a Dominio para el Caso de Uso
         return mapper.toDomain(savedEntity);
@@ -60,6 +62,4 @@ return repository.findByActivoTrue().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
-
-
 }
