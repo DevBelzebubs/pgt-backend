@@ -69,6 +69,11 @@ spring:
           predicates:
             - Path=/api/v1/brands/**
 
+        - id: ms-inventory-kardex
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/kardex/**
+
 eureka:
   client:
     service-url:

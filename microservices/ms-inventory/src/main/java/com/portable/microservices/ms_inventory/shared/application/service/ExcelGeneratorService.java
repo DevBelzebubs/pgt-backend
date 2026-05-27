@@ -17,20 +17,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+
+import com.portable.microservices.ms_inventory.kardex.application.dto.KardexExportRow;
 import com.portable.microservices.ms_inventory.product.domain.model.Product;
 
 @Service
 public class ExcelGeneratorService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-     public ByteArrayResource generateProductExcel(List<Product> products) {
+
+    public ByteArrayResource generateProductExcel(List<Product> products) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Inventario Productos");
             CellStyle headerStyle = createHeaderStyle(workbook);
             CellStyle moneyStyle = createMoneyStyle(workbook);
             CellStyle dateStyle = createDateStyle(workbook);
             String[] headers = {
-                "SKU", "Cód. Anexo", "Producto", "Precio Compra", 
-                "Precio Venta", "Estado", "Fecha Creación", "Categoría ID", "Marca ID"
+                    "SKU", "Cód. Anexo", "Producto", "Precio Compra",
+                    "Precio Venta", "Estado", "Fecha Creación", "Categoría ID", "Marca ID"
             };
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
@@ -41,27 +44,27 @@ public class ExcelGeneratorService {
             int rowNum = 1;
             for (Product p : products) {
                 Row row = sheet.createRow(rowNum++);
-                
+
                 row.createCell(0).setCellValue(p.codProd() != null ? p.codProd() : "");
                 row.createCell(1).setCellValue(p.codAnexo() != null ? p.codAnexo() : "");
                 row.createCell(2).setCellValue(p.descripcion() != null ? p.descripcion() : "");
-                
+
                 Cell preComCell = row.createCell(3);
                 preComCell.setCellValue(p.preCom() != null ? p.preCom().doubleValue() : 0.0);
                 preComCell.setCellStyle(moneyStyle);
-                
+
                 Cell preVenCell = row.createCell(4);
                 preVenCell.setCellValue(p.preVen() != null ? p.preVen().doubleValue() : 0.0);
                 preVenCell.setCellStyle(moneyStyle);
-                
+
                 row.createCell(5).setCellValue(p.estado() ? "ACTIVO" : "INACTIVO");
-                
+
                 Cell fechaCell = row.createCell(6);
                 if (p.fecCreacion() != null) {
                     fechaCell.setCellValue(p.fecCreacion().format(DATE_FORMATTER));
                     fechaCell.setCellStyle(dateStyle);
                 }
-                
+
                 row.createCell(7).setCellValue(p.categoryId() != null ? p.categoryId() : 0);
                 row.createCell(8).setCellValue(p.brandId() != null ? p.brandId() : 0);
             }
@@ -76,6 +79,7 @@ public class ExcelGeneratorService {
             throw new RuntimeException("Error generando Excel: " + e.getMessage(), e);
         }
     }
+
     private CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -88,14 +92,59 @@ public class ExcelGeneratorService {
         font.setColor(IndexedColors.WHITE.getIndex());
         return style;
     }
+
     private CellStyle createMoneyStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         style.setDataFormat(workbook.createDataFormat().getFormat("$#,##0.00"));
         return style;
     }
+
     private CellStyle createDateStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
         return style;
+    }
+
+    public ByteArrayResource generateKardexExcel(List<KardexExportRow> rows) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Kardex");
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle moneyStyle = createMoneyStyle(workbook);
+            String[] headers = {
+                    "Fecha", "Producto", "SKU", "Tipo Mov.", "Doc. Ref.",
+                    "Stock Ant.", "Ingreso", "Salida", "Stock Act.", "Costo Prom."
+            };
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+            int rowNum = 1;
+            for (KardexExportRow r : rows) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(r.fecha());
+                row.createCell(1).setCellValue(r.producto());
+                row.createCell(2).setCellValue(r.sku());
+                row.createCell(3).setCellValue(r.tipoMovimiento());
+                row.createCell(4).setCellValue(r.documentoRef());
+                row.createCell(5).setCellValue(r.stockAnterior());
+                row.createCell(6).setCellValue(r.cantIngreso());
+                row.createCell(7).setCellValue(r.cantSalida());
+                row.createCell(8).setCellValue(r.stockActual());
+                Cell costoCell = row.createCell(9);
+                costoCell.setCellValue(r.costoPromedio() != null ? r.costoPromedio().doubleValue() : 0.0);
+                costoCell.setCellStyle(moneyStyle);
+            }
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            sheet.setColumnWidth(1, 12000);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return new ByteArrayResource(outputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("Error generando Excel de kardex: " + e.getMessage(), e);
+        }
     }
 }

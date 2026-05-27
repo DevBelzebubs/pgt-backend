@@ -33,7 +33,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private static final List<String> PUBLIC_GET_PREFIXES = List.of(
         "/api/v1/products",
         "/api/v1/brands",
-        "/api/v1/categories"
+        "/api/v1/categories",
+        "/api/v1/kardex"
     );
 
     public AuthenticationFilter(JwtUtil jwtUtil) {
