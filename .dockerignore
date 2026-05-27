@@ -1,0 +1,9 @@
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+**/target/
+**/node_modules/
+*.md
+LICENSE

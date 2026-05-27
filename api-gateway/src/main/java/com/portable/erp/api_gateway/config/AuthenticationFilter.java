@@ -34,7 +34,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/api/v1/products",
         "/api/v1/brands",
         "/api/v1/categories",
-        "/api/v1/kardex"
+        "/api/v1/kardex",
+        "/ws"
     );
 
     public AuthenticationFilter(JwtUtil jwtUtil) {
