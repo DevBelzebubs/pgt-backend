@@ -26,17 +26,19 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtUtil jwtUtil;
 
     private static final List<String> PUBLIC_POST_PATHS = List.of(
-        "/api/v1/auth/login",
-        "/api/v1/users"
-    );
+            "/api/v1/auth/login",
+            "/api/v1/users"
+        );
 
     private static final List<String> PUBLIC_GET_PREFIXES = List.of(
-        "/api/v1/products",
-        "/api/v1/brands",
-        "/api/v1/categories",
-        "/api/v1/kardex",
-        "/ws"
-    );
+            "/api/v1/products",
+            "/api/v1/brands",
+            "/api/v1/categories",
+            "/api/v1/kardex",
+            "/api/v1/movimientos",
+            "/api/v1/locations",
+            "/ws"
+        );
 
     public AuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -73,8 +75,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicPath(HttpMethod method, String path) {
-        if (method == null) return false;
-        if (HttpMethod.OPTIONS.equals(method)) return true;
+        if (method == null)
+            return false;
+        if (HttpMethod.OPTIONS.equals(method))
+            return true;
 
         String normalized = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
 
@@ -95,12 +99,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         String body = String.format(
-            "{\"success\":false,\"status\":%d,\"error\":\"%s\",\"message\":\"%s\"}",
-            httpStatus.value(), httpStatus.getReasonPhrase(), message
-        );
+                "{\"success\":false,\"status\":%d,\"error\":\"%s\",\"message\":\"%s\"}",
+                httpStatus.value(), httpStatus.getReasonPhrase(), message);
 
         DataBuffer buffer = response.bufferFactory()
-            .wrap(body.getBytes(StandardCharsets.UTF_8));
+                .wrap(body.getBytes(StandardCharsets.UTF_8));
 
         return response.writeWith(Mono.just(buffer));
     }

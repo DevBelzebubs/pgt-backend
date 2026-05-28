@@ -49,6 +49,7 @@ public class RegisterEntradaUseCase implements RegisterEntradaPortIn {
         Movimiento movimiento = Movimiento.crearEntrada(
                 idLote,
                 idUsuario,
+                cantidad,
                 motivo != null ? motivo : "Entrada registrada",
                 docRef
         );

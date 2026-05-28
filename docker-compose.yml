@@ -24,12 +24,36 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pgt.com
       PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     ports:
       - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
     depends_on:
       - postgres
     networks:
       - pgt-network
+
+  postgres-init:
+    image: postgres:16-alpine
+    container_name: pgt-postgres-init
+    environment:
+      PGPASSWORD: admin
+    command:
+      - sh
+      - -c
+      - |
+        psql -h postgres -U postgres -d db_portable -v ON_ERROR_STOP=1 \
+          -c "CREATE SCHEMA IF NOT EXISTS administration;" \
+          -c "CREATE SCHEMA IF NOT EXISTS inventory;" \
+          -c "CREATE SCHEMA IF NOT EXISTS tracking;"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pgt-network
+    restart: "no"
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -49,21 +73,6 @@ services:
       retries: 5
     networks:
       - pgt-network
-  discovery-server:
-    build:
-      context: .
-      dockerfile: discovery-server/Dockerfile
-    container_name: pgt-discovery
-    ports:
-      - "8761:8761"
-    environment:
-      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
-    depends_on:
-      config-server:
-        condition: service_started
-    restart: on-failure
-    networks:
-      - pgt-network
   config-server:
     build:
       context: .
@@ -76,6 +85,33 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8888/ms-inventory/default || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: on-failure
+    networks:
+      - pgt-network
+  discovery-server:
+    build:
+      context: .
+      dockerfile: discovery-server/Dockerfile
+    container_name: pgt-discovery
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8761/eureka/apps || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
     restart: on-failure
     networks:
       - pgt-network
@@ -91,11 +127,12 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://discovery-server:8761/eureka/"
     depends_on:
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     restart: on-failure
     networks:
       - pgt-network
   ms-inventory:
+    image: pgt-ms-inventory:latest
     build:
       context: .
       dockerfile: microservices/ms-inventory/Dockerfile
@@ -103,6 +140,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      SERVER_PORT: "8083"
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://discovery-server:8761/eureka/"
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
@@ -110,19 +148,21 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/db_portable?currentSchema=inventory"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "admin"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
       SPRING_RABBITMQ_HOST: "rabbitmq"
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     restart: on-failure
     networks:
       - pgt-network
   ms-administration:
+    image: pgt-ms-administration:latest
     build:
       context: .
       dockerfile: microservices/ms-administration/Dockerfile
@@ -130,6 +170,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      SERVER_PORT: "8082"
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://discovery-server:8761/eureka/"
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
@@ -137,15 +178,16 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/db_portable?currentSchema=administration"
       SPRING_DATASOURCE_USERNAME: "postgres"
       SPRING_DATASOURCE_PASSWORD: "admin"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
       SPRING_RABBITMQ_HOST: "rabbitmq"
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     restart: on-failure
     networks:
       - pgt-network
@@ -170,10 +212,10 @@ services:
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     restart: on-failure
     networks:
       - pgt-network
@@ -182,3 +224,4 @@ networks:
     driver: bridge
 volumes:
   postgres-db-data:
+  pgadmin-data:

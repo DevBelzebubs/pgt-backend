@@ -9,6 +9,12 @@ import java.util.UUID;
 
 public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, UUID> {
 
-    @Query("select case when count(p) > 0 then true else false end from ProductJpaEntity p where p.cod_prod = :codProd")
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END FROM ProductJpaEntity p WHERE p.cod_prod = :codProd")
     boolean existsByCodProd(@Param("codProd") String codProd);
+    @Query(value = """
+        SELECT COALESCE(SUM(l.cantidad), 0)
+        FROM inventory.lote l
+        WHERE l.id_producto = :productId
+    """, nativeQuery = true)
+    Integer sumStockByProductId(@Param("productId") UUID productId);
 }

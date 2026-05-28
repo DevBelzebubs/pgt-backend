@@ -4,8 +4,8 @@ import java.util.List;
 import com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity.LoteJpaEntity;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterSalidaPortIn;
 import com.portable.microservices.ms_inventory.movement.domain.ports.out.LotePersistencePortOut;
+import com.portable.microservices.ms_inventory.movement.infrastructure.config.RabbitMQConfig;
 import com.portable.microservices.ms_inventory.movement.infrastructure.messaging.dto.PickingCompletedMessage;
-import com.portable.shared.infrastructure.config.RabbitMQConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

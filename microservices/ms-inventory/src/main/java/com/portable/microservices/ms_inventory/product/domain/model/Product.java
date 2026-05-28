@@ -16,5 +16,12 @@ public record Product(
     BigDecimal preCom,
     BigDecimal preVen,
     boolean estado,
-    ZonedDateTime fecCreacion
-) {}
+    ZonedDateTime fecCreacion,
+    Integer stockMinimo,
+    Integer stockTotal
+) {
+    public Product {
+        stockMinimo = stockMinimo != null ? stockMinimo : 0;
+        stockTotal = stockTotal != null ? stockTotal : 0;
+    }
+}

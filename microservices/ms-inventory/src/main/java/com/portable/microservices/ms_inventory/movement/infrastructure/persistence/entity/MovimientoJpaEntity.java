@@ -21,7 +21,7 @@ public class MovimientoJpaEntity {
     private UUID idMovimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_lote", nullable = false)
+    @JoinColumn(name = "id_lote", nullable = true)
     private LoteJpaEntity lote;
 
     @Column(nullable = false)
