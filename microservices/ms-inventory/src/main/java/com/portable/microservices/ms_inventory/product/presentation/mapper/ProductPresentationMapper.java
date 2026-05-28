@@ -24,6 +24,7 @@ public class ProductPresentationMapper {
                 request.preVen(),
                 true,
                 ZonedDateTime.now(),
+                request.stockMinimo() != null ? request.stockMinimo() : 0,
                 0
         );
     }
@@ -41,7 +42,8 @@ public class ProductPresentationMapper {
                 product.preVen(),
                 product.estado(),
                 product.fecCreacion(),
-                product.stockTotal()
+                product.stockTotal(),
+                product.stockMinimo()
         );
     }
 }

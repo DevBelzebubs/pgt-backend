@@ -24,7 +24,7 @@ public class LoteJpaEntity {
     private ProductJpaEntity producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_locacion", nullable = false)
+    @JoinColumn(name = "id_locacion", nullable = true)
     private LocationJpaEntity locacion;
 
     @Column(nullable = false, length = 50)
@@ -44,6 +44,17 @@ public class LoteJpaEntity {
     
     @Column(name = "cod_prov", length = 30)
     private String codProv;
+
+    @Column(nullable = false)
+    private Integer cantidad;
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
 
     public UUID getIdLote() {
         return idLote;

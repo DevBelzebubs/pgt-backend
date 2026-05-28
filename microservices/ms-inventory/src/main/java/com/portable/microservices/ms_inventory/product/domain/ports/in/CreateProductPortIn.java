@@ -15,6 +15,8 @@ public interface CreateProductPortIn {
         String descripcion,
         List<String> modelos_compatibles,
         BigDecimal pre_com,
-        BigDecimal pre_ven
+        BigDecimal pre_ven,
+        Integer stock_minimo,
+        Integer stock_inicial
     ) {}
 }

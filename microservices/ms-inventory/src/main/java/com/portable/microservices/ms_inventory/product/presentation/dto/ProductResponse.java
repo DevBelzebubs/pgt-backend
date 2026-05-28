@@ -17,5 +17,6 @@ public record ProductResponse(
     BigDecimal preVen,
     boolean estado,
     ZonedDateTime fecCreacion,
-    Integer stockTotal
+    Integer stockTotal,
+    Integer stockMinimo
 ) {}

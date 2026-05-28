@@ -14,5 +14,7 @@ public record CreateProductRequest(
     @NotBlank String descripcion,
     List<String> modelosCompatibles,
     @NotNull BigDecimal preCom,
-    @NotNull BigDecimal preVen
+    @NotNull BigDecimal preVen,
+    Integer stockMinimo,
+    Integer stockInicial
 ) {}

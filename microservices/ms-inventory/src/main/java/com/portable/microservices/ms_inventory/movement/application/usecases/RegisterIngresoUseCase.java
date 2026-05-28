@@ -56,7 +56,8 @@ public class RegisterIngresoUseCase implements RegisterIngresoPortIn {
             command.costoUnit(),
             "DISPONIBLE",
             command.proveedor(),
-            command.codProv()
+            command.codProv(),
+            command.cantidad()
         );
 
         Lot lotGuardado = lotPersistence.save(lot);

@@ -13,5 +13,6 @@ public record Lot(
     BigDecimal costoUnit,
     String estado,
     String proveedor,
-    String codProv
+    String codProv,
+    Integer cantidad
 ){}

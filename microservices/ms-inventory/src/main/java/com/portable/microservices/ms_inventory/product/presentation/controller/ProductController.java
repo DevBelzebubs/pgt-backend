@@ -40,16 +40,18 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest request) {
         Product product = createProductUseCase.execute(
-                new CreateProductUseCase.CreateProductCommand(
-                        request.categoryId(),
-                        request.brandId(),
-                        request.codProd(),
-                        request.codAnexo(),
-                        request.descripcion(),
-                        request.modelosCompatibles(),
-                        request.preCom(),
-                        request.preVen()
-                )
+            new CreateProductUseCase.CreateProductCommand(
+                request.categoryId(),
+                request.brandId(),
+                request.codProd(),
+                request.codAnexo(),
+                request.descripcion(),
+                request.modelosCompatibles(),
+                request.preCom(),
+                request.preVen(),
+                request.stockMinimo(),
+                request.stockInicial()
+            )
         );
         return ResponseEntity.ok(presentationMapper.toResponse(product));
     }

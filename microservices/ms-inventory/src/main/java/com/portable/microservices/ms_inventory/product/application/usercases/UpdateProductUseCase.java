@@ -33,6 +33,7 @@ public class UpdateProductUseCase implements UpdateProductPortIn {
                 existing.preVen(),
                 command.estado() != null ? command.estado() : existing.estado(),
                 existing.fecCreacion(),
+                existing.stockMinimo(),
                 existing.stockTotal()
         );
 

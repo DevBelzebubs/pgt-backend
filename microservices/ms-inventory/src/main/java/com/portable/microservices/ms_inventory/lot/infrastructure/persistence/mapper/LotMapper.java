@@ -38,6 +38,7 @@ public class LotMapper {
         
         entity.setProveedor(domain.proveedor());
         entity.setCodProv(domain.codProv());
+        entity.setCantidad(domain.cantidad()); 
         
         return entity;
     }
@@ -54,7 +55,8 @@ public class LotMapper {
             entity.getCostoUnit(),
             entity.getEstado(),
             entity.getProveedor(),
-            entity.getCodProv()
+            entity.getCodProv(),
+            entity.getCantidad()
         );
     }
 }

@@ -90,6 +90,8 @@ public class MovimientoController {
             @Valid @RequestBody RegistrarMovimientoRequest request) {
         log.info("Registrando movimiento tipo: {}, cantidad: {}", request.tipo(), request.cantidad());
 
+        // If no userId is provided (e.g., called by frontend automation), use a default system user id to satisfy DB constraints.
+        final Long defaultUserId = 1L;
         RegisterMovementCommand command = new RegisterMovementCommand(
                 request.tipo(),
                 request.idProducto(),
@@ -102,7 +104,7 @@ public class MovimientoController {
                 request.nroLote(),
                 request.costoUnit(),
                 request.fecGarantia(),
-                null
+                defaultUserId
         );
 
         registerMovementUseCase.execute(command);

@@ -33,7 +33,7 @@ public class ProductMapper {
                 .pre_ven(product.preVen())
                 .estado(product.estado())
                 .fec_creacion(toOffsetDateTime(product.fecCreacion()))
-                .stock_minimo(0)
+                .stock_minimo(product.stockMinimo() != null ? product.stockMinimo() : 0)
                 .build();
     }
 
@@ -51,6 +51,7 @@ public class ProductMapper {
                 entity.getPre_ven(),
                 entity.getEstado() != null ? entity.getEstado() : false,
                 entity.getFec_creacion() != null ? entity.getFec_creacion().toZonedDateTime() : null,
+                entity.getStock_minimo(),
                 stockTotal
         );
     }
