@@ -24,6 +24,7 @@ import com.portable.microservices.ms_inventory.movement.domain.ports.in.FindMove
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.ListMovementsPortIn;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterAjustePositivoPortIn;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterEntradaPortIn;
+import com.portable.microservices.ms_inventory.movement.infrastructure.presentation.dto.RegisterSalidaRequest;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterMovementPortIn;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterMovementPortIn.RegisterMovementCommand;
 import com.portable.microservices.ms_inventory.movement.infrastructure.presentation.dto.MovimientoListadoResponse;
@@ -46,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MovimientoController {
 
         private final RegisterEntradaPortIn registerEntradaPortIn;
+        private final RegisterAjustePositivoPortIn registerAjustePositivoPortIn;
+        private final RegisterSalidaPortIn registerSalidaPortIn;
         private final RegisterAjustePositivoPortIn registerAjustePositivoPortIn;
         private final ListMovementsPortIn listMovementsUseCase;
         private final FindMovementPortIn findMovementUseCase;
@@ -148,6 +151,25 @@ public class MovimientoController {
         public ResponseEntity<ApiResponse<MovimientoResponse>> registrarAjustePositivo(
                         @Valid @RequestBody RegisterAjustePositivoRequest request) {
 
+    @PostMapping("/salida")
+    public ResponseEntity<ApiResponse<MovimientoResponse>> registrarSalida(
+            @Valid @RequestBody RegisterSalidaRequest request) {
+        log.info("Registrando salida para lote: {}, cantidad: {}", request.idLote(), request.cantidad());
+        Movimiento movimiento = registerSalidaPortIn.execute(
+                request.idLote(),
+                request.idUsuario(),
+                request.cantidad(),
+                request.motivo(),
+                request.docRef()
+        );
+        MovimientoResponse response = mapper.toResponse(movimiento);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Salida registrada exitosamente", response));
+    }
+
+    @PostMapping("/ajuste-positivo")
+    public ResponseEntity<ApiResponse<MovimientoResponse>> registrarAjustePositivo(
+            @Valid @RequestBody RegisterAjustePositivoRequest request) {
                 log.info("Registrando ajuste positivo para lote: {}, cantidad: {}", request.idLote(),
                                 request.cantidad());
 

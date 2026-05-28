@@ -1,5 +1,9 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.messaging.listener;
-import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterEntradaPortIn;
+
+import java.util.List;
+import com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity.LoteJpaEntity;
+import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterSalidaPortIn;
+import com.portable.microservices.ms_inventory.movement.domain.ports.out.LotePersistencePortOut;
 import com.portable.microservices.ms_inventory.movement.infrastructure.config.RabbitMQConfig;
 import com.portable.microservices.ms_inventory.movement.infrastructure.messaging.dto.PickingCompletedMessage;
 
@@ -17,7 +21,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PickingEventListener {
 
-    private final RegisterEntradaPortIn registerEntradaPortIn;
+    private final RegisterSalidaPortIn registerSalidaPortIn;
+    private final LotePersistencePortOut lotePersistence;
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = RabbitMQConfig.INVENTORY_PICKING_QUEUE, durable = "true"),
@@ -28,13 +33,32 @@ public class PickingEventListener {
         log.info("🛒 ¡Orden de Picking recibida en ms-inventory! Orden ID: {}", message.ordenId());
         log.info("👤 Operario ID: {}", message.usuarioId());
         
-        message.items().forEach(item -> {
-            log.info("📦 Producto a descontar: {} | Locación: {} | Cantidad: {}", 
-                     item.productoId(), item.locacionId(), item.cantidadRealRecogida());
-        });
         try {
-            // Nota: Este listener registra SALIDA (descuento) de picking
-            // Para ahora solo log. En futuro se conectará con RegisterSalidaUseCase
+            for (PickingCompletedMessage.ItemRecogido item : message.items()) {
+                log.info("📦 Producto a descontar: {} | Locación: {} | Cantidad: {}", 
+                         item.productoId(), item.locacionId(), item.cantidadRealRecogida());
+                
+                // Buscar lote correspondiente en esa locación usando la estrategia FIFO
+                List<LoteJpaEntity> lotes = lotePersistence.findLotesByProductAndLocation(item.productoId(), item.locacionId());
+                if (lotes.isEmpty()) {
+                    throw new IllegalArgumentException(String.format(
+                            "No se encontró un lote disponible para el producto: %s en la locación: %s", 
+                            item.productoId(), item.locacionId()));
+                }
+                
+                // FIFO: seleccionamos el primer lote de la lista ordenada por fecha de ingreso ascendente
+                LoteJpaEntity lote = lotes.get(0);
+                log.info("Lote seleccionado para picking (FIFO): {} | Nro Lote: {} | Fec Ingreso: {}", 
+                         lote.getIdLote(), lote.getNroLote(), lote.getFecIngreso());
+
+                registerSalidaPortIn.execute(
+                        lote.getIdLote(),
+                        message.usuarioId(),
+                        item.cantidadRealRecogida(),
+                        "Salida por Picking - Orden ID: " + message.ordenId(),
+                        message.ordenId().toString()
+                );
+            }
             
             log.info("Evento de picking procesado exitosamente.");
         } catch (Exception e) {
