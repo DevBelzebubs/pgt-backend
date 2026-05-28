@@ -28,6 +28,6 @@ public class LoginUseCase implements LoginPortIn {
 
         String roleName = account.user().roles().iterator().next().name();
         
-        return jwtService.createToken(account.username(), roleName);
+        return jwtService.createToken(account.username(), roleName, account.user().id());
     }
 }

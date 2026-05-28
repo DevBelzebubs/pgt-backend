@@ -14,10 +14,11 @@ public class JwtService {
 
     private static final String SECRET = "tu_clave_secreta_super_segura_de_al_menos_32_caracteres_12345";
 
-    public String createToken(String username, String role) {
+    public String createToken(String username, String role, Long userId) {
         return Jwts.builder()
                 .subject(username)
                 .claim("role", role)
+                .claim("userId", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 3_600_000))
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))

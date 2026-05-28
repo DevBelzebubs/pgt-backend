@@ -1,6 +1,7 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.presentation.mapper;
 
-import java.util.UUID;
+
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
@@ -27,15 +28,15 @@ public class MovimientoWebMapper {
         );
     }
 
-    public MovimientoListadoResponse toListadoResponse(Object[] row) {
-        if (row == null || row.length < 6) return null;
+    public MovimientoListadoResponse toListadoResponse(Object[] row, Map<Long, String> userNames) {
+        if (row == null || row.length < 5) return null;
 
         MovimientoJpaEntity m = (MovimientoJpaEntity) row[0];
         String nroLote = (String) row[1];
         String sku = (String) row[2];
         String producto = (String) row[3];
         String locacion = (String) row[4];
-        Integer stockActual = row[5] != null ? (Integer) row[5] : 0;
+        Integer stockActual = 0;
 
         String tipo = m.getTipo();
         Integer cantidad = m.getCantidad() != null ? m.getCantidad() : 0;
@@ -52,7 +53,7 @@ public class MovimientoWebMapper {
                 cantSalida = cantidad;
             }
         }
-
+        String usuario = userNames.getOrDefault(m.getIdUsuario(), m.getIdUsuario() != null ? String.valueOf(m.getIdUsuario()) : "");
         return new MovimientoListadoResponse(
                 m.getIdMovimiento(),
                 tipo,
@@ -66,7 +67,10 @@ public class MovimientoWebMapper {
                 cantSalida,
                 stockActual,
                 locacion,
-                m.getIdUsuario() != null ? String.valueOf(m.getIdUsuario()) : ""
+                usuario
         );
     }
+    public MovimientoListadoResponse toListadoResponse(Object[] row) {
+    return toListadoResponse(row, Map.of());
+}
 }

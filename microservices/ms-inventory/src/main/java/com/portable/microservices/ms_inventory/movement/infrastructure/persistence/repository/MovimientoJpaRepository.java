@@ -36,10 +36,10 @@ public interface MovimientoJpaRepository extends JpaRepository<MovimientoJpaEnti
             """)
     List<Object[]> findByIdWithDetails(@Param("id") UUID id);
 
-    @Query("SELECT m, l.nroLote, p.cod_prod, p.descripcion, lc.codBarras FROM MovimientoJpaEntity m " +
-            "JOIN m.lote l " +
-            "JOIN l.producto p " +
-            "JOIN l.locacion lc " +
+    @Query("SELECT m, l.nroLote, p.cod_prod, p.descripcion, COALESCE(lc.codBarras,'') FROM MovimientoJpaEntity m " +
+            "LEFT JOIN m.lote l " +
+            "LEFT JOIN l.producto p " +
+            "LEFT JOIN l.locacion lc " +
             "WHERE (:tipo IS NULL OR :tipo = '' OR m.tipo = :tipo OR (:tipo = 'AJUSTE' AND m.tipo IN ('AJUSTE_POSITIVO', 'AJUSTE_NEGATIVO'))) " +
             "AND (cast(:fechaDesde as date) IS NULL OR m.fecha >= :fechaDesde) " +
             "AND (cast(:fechaHasta as date) IS NULL OR m.fecha <= :fechaHasta) " +

@@ -1,7 +1,7 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.messaging.listener;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterEntradaPortIn;
+import com.portable.microservices.ms_inventory.movement.infrastructure.config.RabbitMQConfig;
 import com.portable.microservices.ms_inventory.movement.infrastructure.messaging.dto.PickingCompletedMessage;
-import com.portable.shared.infrastructure.config.RabbitMQConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
