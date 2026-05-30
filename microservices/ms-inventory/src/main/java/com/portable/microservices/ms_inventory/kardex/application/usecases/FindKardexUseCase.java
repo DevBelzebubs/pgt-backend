@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
 import com.portable.microservices.ms_inventory.kardex.domain.ports.in.FindKardexPortIn;
 import com.portable.microservices.ms_inventory.kardex.domain.ports.out.KardexPersistencePortOut;
+import com.portable.shared.infrastructure.presentation.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,19 @@ public class FindKardexUseCase implements FindKardexPortIn {
         return kardexPersistence.findByProductId(productId);
     }
     @Override
+    public PagedResponse<Kardex> findByProductId(UUID productId, int page, int size) {
+        List<Kardex> items = kardexPersistence.findByProductId(productId, page, size);
+        long total = kardexPersistence.countByProductId(productId);
+        return new PagedResponse<>(items, total, page, size);
+    }
+    @Override
     public List<Kardex> findAll() {
         return kardexPersistence.findAll();
+    }
+    @Override
+    public PagedResponse<Kardex> findAll(int page, int size) {
+        List<Kardex> items = kardexPersistence.findAll(page, size);
+        long total = kardexPersistence.countAllKardex();
+        return new PagedResponse<>(items, total, page, size);
     }
 }

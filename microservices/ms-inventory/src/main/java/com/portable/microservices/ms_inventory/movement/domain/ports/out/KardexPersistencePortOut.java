@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.movement.domain.ports.out;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.portable.microservices.ms_inventory.kardex.infrastructure.persistence.entity.KardexJpaEntity;
@@ -33,5 +34,7 @@ public interface KardexPersistencePortOut {
      * @param idProducto ID del producto
      * @return Cantidad de stock disponible
      */
+
     Integer getStockActual(UUID idProducto);
+    Optional<KardexJpaEntity> findLastByProductId(UUID idProducto);
 }

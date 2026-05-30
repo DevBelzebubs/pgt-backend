@@ -15,4 +15,7 @@ public interface LoteJpaRepository extends JpaRepository<LoteJpaEntity, UUID> {
 
     @Query("SELECT l FROM LoteJpaEntity l WHERE l.producto.id_producto = :idProducto AND l.locacion.idLocacion = :idLocacion ORDER BY l.fecIngreso ASC")
     List<LoteJpaEntity> findByProductoAndLocacionOrderByFecIngresoAsc(@Param("idProducto") UUID idProducto, @Param("idLocacion") UUID idLocacion);
+
+    @Query("SELECT l FROM LoteJpaEntity l WHERE l.producto.id_producto = :idProducto ORDER BY l.fecIngreso ASC")
+    List<LoteJpaEntity> findByProductoIdOrderByFecIngresoAsc(@Param("idProducto") UUID idProducto);
 }

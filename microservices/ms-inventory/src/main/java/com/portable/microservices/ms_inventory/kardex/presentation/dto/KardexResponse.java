@@ -3,6 +3,8 @@ package com.portable.microservices.ms_inventory.kardex.presentation.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.portable.microservices.ms_inventory.kardex.domain.model.MetodoCosto;
+
 public record KardexResponse(
     UUID idKardex,
     UUID idMovimiento,
@@ -16,5 +18,6 @@ public record KardexResponse(
     Integer cantIngreso,
     Integer cantSalida,
     Integer stockActual,
-    BigDecimal costoPromedio
+    BigDecimal costoPromedio,
+    MetodoCosto metodoCosto
 ) {}

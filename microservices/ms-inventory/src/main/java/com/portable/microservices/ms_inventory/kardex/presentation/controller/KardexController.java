@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
+import com.portable.microservices.ms_inventory.kardex.domain.model.MetodoCosto;
 import com.portable.microservices.ms_inventory.kardex.domain.ports.in.ExportKardexPortIn;
 import com.portable.microservices.ms_inventory.kardex.domain.ports.in.FindKardexPortIn;
 import com.portable.microservices.ms_inventory.kardex.presentation.dto.KardexResponse;
 import com.portable.microservices.ms_inventory.kardex.presentation.mapper.KardexPresentationMapper;
-import com.portable.microservices.ms_inventory.movement.domain.model.Movement;
 import com.portable.microservices.ms_inventory.movement.domain.ports.out.MovementPersistencePortOut;
-import com.portable.microservices.ms_inventory.product.domain.model.Product;
 import com.portable.microservices.ms_inventory.product.domain.ports.out.ProductPersistencePortOut;
+import com.portable.shared.infrastructure.presentation.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,29 +38,39 @@ public class KardexController {
     private final ExportKardexPortIn exportKardexUseCase;
 
     @GetMapping
-    public ResponseEntity<List<KardexResponse>> findAll(
+    public ResponseEntity<PagedResponse<KardexResponse>> findAll(
             @RequestParam(required = false) UUID idProducto,
-            @RequestParam(required = false) String tipoMovimiento) {
-        List<Kardex> kardexList = (idProducto != null)
-                ? findKardexUseCase.findByProductId(idProducto)
-                : findKardexUseCase.findAll();
-        List<KardexResponse> response = kardexList.stream()
-                .map(k -> toResponse(k))
-                .filter(r -> tipoMovimiento == null || tipoMovimiento.equals(r.tipoMovimiento()))
-                .toList();
-        return ResponseEntity.ok(response);
+            @RequestParam(defaultValue = "PPP") String metodoCosto,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "50") int tamanioPagina) {
+        MetodoCosto metodo = parseMetodo(metodoCosto);
+        PagedResponse<Kardex> page = (idProducto != null)
+                ? findKardexUseCase.findByProductId(idProducto, pagina, tamanioPagina)
+                : findKardexUseCase.findAll(pagina, tamanioPagina);
+        List<KardexResponse> items = presentationMapper.toResponseList(
+                page.items(), metodo,
+                id -> movementPersistence.findById(id).orElse(null),
+                id -> productPersistence.findById(id).orElse(null));
+        return ResponseEntity.ok(new PagedResponse<>(items, page.total(), page.page(), page.pageSize()));
     }
 
     @GetMapping("/{idProducto}")
-    public ResponseEntity<List<KardexResponse>> findByProducto(@PathVariable UUID idProducto) {
-        List<KardexResponse> response = findKardexUseCase.findByProductId(idProducto).stream()
-                .map(k -> toResponse(k)).toList();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PagedResponse<KardexResponse>> findByProducto(
+            @PathVariable UUID idProducto,
+            @RequestParam(defaultValue = "PPP") String metodoCosto,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "50") int tamanioPagina) {
+        MetodoCosto metodo = parseMetodo(metodoCosto);
+        PagedResponse<Kardex> page = findKardexUseCase.findByProductId(idProducto, pagina, tamanioPagina);
+        List<KardexResponse> items = presentationMapper.toResponseList(
+                page.items(), metodo,
+                id -> movementPersistence.findById(id).orElse(null),
+                id -> productPersistence.findById(id).orElse(null));
+        return ResponseEntity.ok(new PagedResponse<>(items, page.total(), page.page(), page.pageSize()));
     }
 
     @GetMapping("/export")
-    public ResponseEntity<Resource> export(
-            @RequestParam(defaultValue = "EXCEL") String format) {
+    public ResponseEntity<Resource> export(@RequestParam(defaultValue = "EXCEL") String format) {
         ExportKardexPortIn.ExportFormat exportFormat;
         try {
             exportFormat = ExportKardexPortIn.ExportFormat.valueOf(format.toUpperCase());
@@ -80,10 +90,11 @@ public class KardexController {
                 .body(resource);
     }
 
-    // Helper
-    private KardexResponse toResponse(Kardex k) {
-        Movement movement = movementPersistence.findById(k.movimientoId()).orElse(null);
-        Product product = productPersistence.findById(k.productoId()).orElse(null);
-        return presentationMapper.toResponse(k, movement, product);
+    private static MetodoCosto parseMetodo(String value) {
+        try {
+            return MetodoCosto.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return MetodoCosto.PPP;
+        }
     }
 }

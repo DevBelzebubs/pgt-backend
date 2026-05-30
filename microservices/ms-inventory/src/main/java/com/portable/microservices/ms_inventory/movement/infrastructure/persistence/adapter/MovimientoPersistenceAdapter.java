@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.portable.microservices.ms_inventory.kardex.infrastructure.persistence.entity.KardexJpaEntity;
@@ -142,14 +144,16 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     public List<LoteJpaEntity> findLotesByProductAndLocation(UUID idProducto, UUID idLocacion) {
         return loteRepository.findByProductoAndLocacionOrderByFecIngresoAsc(idProducto, idLocacion);
     }
+
+    @Override
+    public List<LoteJpaEntity> findLotesByProductId(UUID idProducto) {
+        return loteRepository.findByProductoIdOrderByFecIngresoAsc(idProducto);
+    }
   
     public List<Object[]> findAllWithFilters(String tipo, LocalDate fechaDesde, LocalDate fechaHasta,
                                               UUID idProducto, String texto, int pagina, int tamanioPagina) {
-        List<Object[]> results = movimientoRepository.findAllWithFilters(tipo, fechaDesde, fechaHasta, idProducto, texto);
-        int fromIndex = pagina * tamanioPagina;
-        if (fromIndex >= results.size()) return List.of();
-        int toIndex = Math.min(fromIndex + tamanioPagina, results.size());
-        return results.subList(fromIndex, toIndex);
+        Pageable pageable = PageRequest.of(pagina, tamanioPagina);
+        return movimientoRepository.findAllWithFiltersPaged(tipo, fechaDesde, fechaHasta, idProducto, texto, pageable);
     }
 
     @Override
@@ -166,5 +170,13 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     @Override
     public void deleteById(UUID id) {
         movimientoRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<KardexJpaEntity> findLastByProductId(UUID idProducto) {
+        return kardexRepository.findLatestByProducto(
+        idProducto,
+        org.springframework.data.domain.PageRequest.of(0, 1)
+    ).stream().findFirst();
     }
 }

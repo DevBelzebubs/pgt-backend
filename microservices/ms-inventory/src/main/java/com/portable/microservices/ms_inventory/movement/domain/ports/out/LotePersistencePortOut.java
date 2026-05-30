@@ -21,4 +21,9 @@ public interface LotePersistencePortOut {
      * Obtiene los lotes asociados a un producto en una locación específica
      */
     List<LoteJpaEntity> findLotesByProductAndLocation(UUID idProducto, UUID idLocacion);
+
+    /**
+     * Obtiene los lotes asociados a un producto, ordenados por fecha de ingreso ASC (FIFO)
+     */
+    List<LoteJpaEntity> findLotesByProductId(UUID idProducto);
 }
