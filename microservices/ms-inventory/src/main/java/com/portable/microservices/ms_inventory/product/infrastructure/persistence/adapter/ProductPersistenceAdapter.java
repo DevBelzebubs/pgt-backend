@@ -24,18 +24,26 @@ public class ProductPersistenceAdapter implements ProductPersistencePortOut {
     public Product save(Product product) {
         ProductJpaEntity entity = mapper.toEntity(product);
         ProductJpaEntity saved = repository.save(entity);
-        return mapper.toDomain(saved);
+        Integer stockTotal = repository.sumStockByProductId(saved.getId_producto());
+        return mapper.toDomain(saved, stockTotal);
     }
 
     @Override
     public Optional<Product> findById(UUID id) {
-        return repository.findById(id).map(mapper::toDomain);
+        return repository.findById(id)
+                .map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                });
     }
 
     @Override
     public List<Product> findAll() {
         return repository.findAll().stream()
-                .map(mapper::toDomain)
+                .map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -47,5 +55,20 @@ public class ProductPersistenceAdapter implements ProductPersistencePortOut {
     @Override
     public long count() {
         return repository.count();
+    }
+
+    @Override
+    public List<Product> findAllWithFilters(String texto, Long idCategoria, Boolean estado, int page, int size) {
+        return repository.findAllWithFilters(
+                texto, idCategoria, estado, size, page * size).stream().map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                }).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public long countWithFilters(String texto, Long idCategoria, Boolean estado) {
+        return repository.countWithFilters(texto, idCategoria, estado);
     }
 }

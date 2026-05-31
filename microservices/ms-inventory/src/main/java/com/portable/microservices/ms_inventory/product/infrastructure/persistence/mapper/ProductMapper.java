@@ -33,15 +33,12 @@ public class ProductMapper {
                 .pre_ven(product.preVen())
                 .estado(product.estado())
                 .fec_creacion(toOffsetDateTime(product.fecCreacion()))
-                .stock_minimo(0)
+                .stock_minimo(product.stockMinimo() != null ? product.stockMinimo() : 0)
                 .build();
     }
 
-    public Product toDomain(ProductJpaEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
+    public Product toDomain(ProductJpaEntity entity, Integer stockTotal) {
+        if (entity == null) return null;
         return new Product(
                 entity.getId_producto(),
                 entity.getId_categoria() != null ? entity.getId_categoria().getId() : null,
@@ -52,8 +49,10 @@ public class ProductMapper {
                 entity.getModelos_compatibles(),
                 entity.getPre_com(),
                 entity.getPre_ven(),
-                Boolean.TRUE.equals(entity.getEstado()),
-                toZonedDateTime(entity.getFec_creacion())
+                entity.getEstado() != null ? entity.getEstado() : false,
+                entity.getFec_creacion() != null ? entity.getFec_creacion().toZonedDateTime() : null,
+                entity.getStock_minimo(),
+                stockTotal
         );
     }
 

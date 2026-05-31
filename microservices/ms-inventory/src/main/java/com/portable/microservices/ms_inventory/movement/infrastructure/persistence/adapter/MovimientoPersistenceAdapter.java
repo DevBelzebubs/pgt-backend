@@ -1,10 +1,13 @@
 package com.portable.microservices.ms_inventory.movement.infrastructure.persistence.adapter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.portable.microservices.ms_inventory.kardex.infrastructure.persistence.entity.KardexJpaEntity;
@@ -64,19 +67,14 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     }
 
     @Override
-    public KardexJpaEntity registrarEntrada(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, BigDecimal costoProm) {
-        // Obtener movimiento y producto
+    public KardexJpaEntity registrarEntrada(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, BigDecimal costoProm) {
         MovimientoJpaEntity movimiento = movimientoRepository.findById(idMovimiento)
                 .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado"));
         
         ProductJpaEntity producto = movimiento.getLote().getProducto();
 
-        // Para el caso de registro de entrada simple sin historial de kardex por fecha,
-        // consideramos stock anterior como 0 y el stock actual como la cantidad ingresada.
-        Integer stockAnterior = 0;
-        Integer stockActual = cantidad;
+        Integer stockActual = stockAnterior + cantidad;
 
-        // Crear registro en kardex
         KardexJpaEntity kardex = new KardexJpaEntity();
         kardex.setMovimiento(movimiento);
         kardex.setProducto(producto);
@@ -90,6 +88,40 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     }
 
     @Override
+    public KardexJpaEntity registrarSalida(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, BigDecimal costoProm) {
+        MovimientoJpaEntity movimiento = movimientoRepository.findById(idMovimiento)
+                .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado"));
+        
+        ProductJpaEntity producto = movimiento.getLote().getProducto();
+        
+        if (stockAnterior < cantidad) {
+            throw new IllegalArgumentException("Stock insuficiente para realizar la salida. Stock disponible: " + stockAnterior);
+        }
+        
+        Integer stockActual = stockAnterior - cantidad;
+
+        KardexJpaEntity kardex = new KardexJpaEntity();
+        kardex.setMovimiento(movimiento);
+        kardex.setProducto(producto);
+        kardex.setStockAnterior(stockAnterior);
+        kardex.setCantIngreso(0);
+        kardex.setCantSalida(cantidad);
+        kardex.setStockActual(stockActual);
+        kardex.setCostoProm(costoProm);
+
+        return kardexRepository.save(kardex);
+    }
+
+    @Override
+    public Integer getStockActual(UUID idProducto) {
+        return kardexRepository.findLatestByProducto(idProducto, org.springframework.data.domain.PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .map(KardexJpaEntity::getStockActual)
+                .orElse(0);
+    }
+
+    @Override
     public Optional<LoteJpaEntity> findLoteById(@NonNull UUID idLote) {
         return loteRepository.findById(idLote);
     }
@@ -97,5 +129,45 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     @Override
     public LoteJpaEntity update(@NonNull LoteJpaEntity lote) {
         return loteRepository.save(lote);
+    }
+
+    @Override
+    public List<LoteJpaEntity> findLotesByProductAndLocation(UUID idProducto, UUID idLocacion) {
+        return loteRepository.findByProductoAndLocacionOrderByFecIngresoAsc(idProducto, idLocacion);
+    }
+
+    @Override
+    public List<LoteJpaEntity> findLotesByProductId(UUID idProducto) {
+        return loteRepository.findByProductoIdOrderByFecIngresoAsc(idProducto);
+    }
+  
+    public List<Object[]> findAllWithFilters(String tipo, LocalDate fechaDesde, LocalDate fechaHasta,
+                                              UUID idProducto, String texto, int pagina, int tamanioPagina) {
+        Pageable pageable = PageRequest.of(pagina, tamanioPagina);
+        return movimientoRepository.findAllWithFiltersPaged(tipo, fechaDesde, fechaHasta, idProducto, texto, pageable);
+    }
+
+    @Override
+    public long countAllWithFilters(String tipo, LocalDate fechaDesde, LocalDate fechaHasta,
+                                     UUID idProducto, String texto) {
+        return movimientoRepository.countAllWithFilters(tipo, fechaDesde, fechaHasta, idProducto, texto);
+    }
+
+    @Override
+    public Optional<Object[]> findByIdWithDetails(UUID id) {
+        return movimientoRepository.findByIdWithDetails(id).stream().findFirst();
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        movimientoRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<KardexJpaEntity> findLastByProductId(UUID idProducto) {
+        return kardexRepository.findLatestByProducto(
+        idProducto,
+        org.springframework.data.domain.PageRequest.of(0, 1)
+    ).stream().findFirst();
     }
 }

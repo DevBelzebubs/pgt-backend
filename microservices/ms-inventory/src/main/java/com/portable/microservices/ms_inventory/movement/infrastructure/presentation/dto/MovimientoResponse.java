@@ -8,6 +8,7 @@ public record MovimientoResponse(
     UUID idLote,
     Long idUsuario,
     String tipo,
+    Integer cantidad,
     OffsetDateTime fecha,
     String motivo,
     String docRef

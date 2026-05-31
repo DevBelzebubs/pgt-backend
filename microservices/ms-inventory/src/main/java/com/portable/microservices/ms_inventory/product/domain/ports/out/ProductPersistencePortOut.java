@@ -7,8 +7,16 @@ import java.util.UUID;
 
 public interface ProductPersistencePortOut {
     Product save(Product product);
+
     Optional<Product> findById(UUID id);
+
     List<Product> findAll();
+
     void deleteById(UUID id);
+
     long count();
+
+    List<Product> findAllWithFilters(String texto, Long idCategoria, Boolean estado, int page, int size);
+
+    long countWithFilters(String texto, Long idCategoria, Boolean estado);
 }

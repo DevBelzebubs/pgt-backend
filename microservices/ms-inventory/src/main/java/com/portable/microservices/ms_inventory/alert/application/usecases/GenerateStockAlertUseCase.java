@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.portable.microservices.ms_inventory.alert.domain.model.StockAlert;
 import com.portable.microservices.ms_inventory.alert.domain.ports.out.ProductThresholdPort;
 import com.portable.microservices.ms_inventory.alert.domain.ports.out.StockAlertPersistencePort;
+import com.portable.microservices.ms_inventory.shared.infrastructure.websocket.WebSocketEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +16,7 @@ public class GenerateStockAlertUseCase {
 
     private final StockAlertPersistencePort alertRepository;
     private final ProductThresholdPort productThresholdPort;
+    private final WebSocketEventPublisher webSocketEventPublisher;
 
     public void execute(UUID productId, Integer currentStock) {
         Integer minStock = productThresholdPort.getMinStockThreshold(productId);
@@ -23,7 +25,7 @@ public class GenerateStockAlertUseCase {
             if (!alertRepository.hasActiveAlertForProduct(productId)) {
                 StockAlert alert = new StockAlert(productId, currentStock, minStock);
                 alertRepository.save(alert);
-                // Opcional: Aquí podrías inyectar otro puerto para enviar un WebSocket al Frontend
+                webSocketEventPublisher.publishStockAlert(productId, currentStock, minStock);
             }
         } else {
             // alertRepository.resolveActiveAlerts(productId);

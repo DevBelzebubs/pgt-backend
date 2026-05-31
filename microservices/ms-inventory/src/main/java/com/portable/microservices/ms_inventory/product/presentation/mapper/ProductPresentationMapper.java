@@ -23,13 +23,15 @@ public class ProductPresentationMapper {
                 request.preCom(),
                 request.preVen(),
                 true,
-                ZonedDateTime.now()
+                ZonedDateTime.now(),
+                request.stockMinimo() != null ? request.stockMinimo() : 0,
+                0
         );
     }
 
     public ProductResponse toResponse(Product product) {
         return new ProductResponse(
-                product.id(),
+                 product.id(),
                 product.categoryId(),
                 product.brandId(),
                 product.codProd(),
@@ -39,7 +41,9 @@ public class ProductPresentationMapper {
                 product.preCom(),
                 product.preVen(),
                 product.estado(),
-                product.fecCreacion()
+                product.fecCreacion(),
+                product.stockTotal(),
+                product.stockMinimo()
         );
     }
 }

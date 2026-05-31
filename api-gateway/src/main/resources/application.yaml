@@ -73,6 +73,14 @@ spring:
           uri: lb://ms-inventory
           predicates:
             - Path=/api/v1/movimientos/**
+        - id: ms-inventory-kardex
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/kardex/**
+        - id: ms-inventory-ws
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/ws/**
 
 eureka:
   client:

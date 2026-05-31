@@ -15,13 +15,13 @@ import java.util.UUID;
 @Entity
 @Table(schema = "inventory", name = "movimiento")
 public class MovimientoJpaEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idMovimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_lote", nullable = false)
+    @JoinColumn(name = "id_lote", nullable = true)
     private LoteJpaEntity lote;
 
     @Column(nullable = false)
@@ -38,4 +38,7 @@ public class MovimientoJpaEntity {
 
     @Column(length = 100)
     private String docRef;
+
+    @Column(nullable = false)
+    private Integer cantidad;
 }
