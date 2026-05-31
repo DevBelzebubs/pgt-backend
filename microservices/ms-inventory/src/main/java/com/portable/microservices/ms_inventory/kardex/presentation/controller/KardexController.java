@@ -50,7 +50,8 @@ public class KardexController {
         List<KardexResponse> items = presentationMapper.toResponseList(
                 page.items(), metodo,
                 id -> movementPersistence.findById(id).orElse(null),
-                id -> productPersistence.findById(id).orElse(null));
+                id -> productPersistence.findById(id).orElse(null),
+                id -> findKardexUseCase.findByProductId(id));
         return ResponseEntity.ok(new PagedResponse<>(items, page.total(), page.page(), page.pageSize()));
     }
 
@@ -65,19 +66,23 @@ public class KardexController {
         List<KardexResponse> items = presentationMapper.toResponseList(
                 page.items(), metodo,
                 id -> movementPersistence.findById(id).orElse(null),
-                id -> productPersistence.findById(id).orElse(null));
+                id -> productPersistence.findById(id).orElse(null),
+                id -> findKardexUseCase.findByProductId(id));
         return ResponseEntity.ok(new PagedResponse<>(items, page.total(), page.page(), page.pageSize()));
     }
 
     @GetMapping("/export")
-    public ResponseEntity<Resource> export(@RequestParam(defaultValue = "EXCEL") String format) {
+    public ResponseEntity<Resource> export(
+            @RequestParam(defaultValue = "EXCEL") String format,
+            @RequestParam(defaultValue = "PPP") String metodoCosto) {
         ExportKardexPortIn.ExportFormat exportFormat;
         try {
             exportFormat = ExportKardexPortIn.ExportFormat.valueOf(format.toUpperCase());
         } catch (IllegalArgumentException e) {
             exportFormat = ExportKardexPortIn.ExportFormat.EXCEL;
         }
-        Resource resource = exportKardexUseCase.exportToFormat(exportFormat);
+        MetodoCosto metodo = parseMetodo(metodoCosto);
+        Resource resource = exportKardexUseCase.exportToFormat(exportFormat, metodo);
         String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         String extension = exportFormat == ExportKardexPortIn.ExportFormat.PDF ? "pdf" : "xlsx";
         String filename = "kardex-" + fecha + "." + extension;

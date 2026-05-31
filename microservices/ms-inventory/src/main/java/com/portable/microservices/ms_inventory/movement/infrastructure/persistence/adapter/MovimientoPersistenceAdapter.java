@@ -67,18 +67,14 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     }
 
     @Override
-    public KardexJpaEntity registrarEntrada(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, BigDecimal costoProm) {
-        // Obtener movimiento y producto
+    public KardexJpaEntity registrarEntrada(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, BigDecimal costoProm) {
         MovimientoJpaEntity movimiento = movimientoRepository.findById(idMovimiento)
                 .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado"));
         
         ProductJpaEntity producto = movimiento.getLote().getProducto();
 
-        // Obtener stock actual antes de la entrada para calcular acumulado dinámicamente
-        Integer stockAnterior = getStockActual(producto.getId_producto());
         Integer stockActual = stockAnterior + cantidad;
 
-        // Crear registro en kardex
         KardexJpaEntity kardex = new KardexJpaEntity();
         kardex.setMovimiento(movimiento);
         kardex.setProducto(producto);
@@ -92,15 +88,11 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
     }
 
     @Override
-    public KardexJpaEntity registrarSalida(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, BigDecimal costoProm) {
-        // Obtener movimiento y producto
+    public KardexJpaEntity registrarSalida(@NonNull UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, BigDecimal costoProm) {
         MovimientoJpaEntity movimiento = movimientoRepository.findById(idMovimiento)
                 .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado"));
         
         ProductJpaEntity producto = movimiento.getLote().getProducto();
-
-        // Obtener stock actual antes de la salida para validar y calcular acumulado dinámicamente
-        Integer stockAnterior = getStockActual(producto.getId_producto());
         
         if (stockAnterior < cantidad) {
             throw new IllegalArgumentException("Stock insuficiente para realizar la salida. Stock disponible: " + stockAnterior);
@@ -108,7 +100,6 @@ public class MovimientoPersistenceAdapter implements MovimientoPersistencePortOu
         
         Integer stockActual = stockAnterior - cantidad;
 
-        // Crear registro en kardex
         KardexJpaEntity kardex = new KardexJpaEntity();
         kardex.setMovimiento(movimiento);
         kardex.setProducto(producto);

@@ -12,10 +12,11 @@ public interface KardexPersistencePortOut {
      * @param idMovimiento ID del movimiento
      * @param idProducto ID del producto
      * @param cantidad Cantidad que ingresa
+     * @param stockAnterior Stock antes del ingreso (calculado externamente para evitar race conditions)
      * @param costoProm Costo promedio unitario
      * @return El registro de kardex creado
      */
-    KardexJpaEntity registrarEntrada(UUID idMovimiento, UUID idProducto, Integer cantidad, java.math.BigDecimal costoProm);
+    KardexJpaEntity registrarEntrada(UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, java.math.BigDecimal costoProm);
 
     /**
      * Registra una salida en el kardex
@@ -23,10 +24,11 @@ public interface KardexPersistencePortOut {
      * @param idMovimiento ID del movimiento
      * @param idProducto ID del producto
      * @param cantidad Cantidad que sale
+     * @param stockAnterior Stock antes de la salida (calculado externamente para evitar race conditions)
      * @param costoProm Costo promedio unitario
      * @return El registro de kardex creado
      */
-    KardexJpaEntity registrarSalida(UUID idMovimiento, UUID idProducto, Integer cantidad, java.math.BigDecimal costoProm);
+    KardexJpaEntity registrarSalida(UUID idMovimiento, UUID idProducto, Integer cantidad, Integer stockAnterior, java.math.BigDecimal costoProm);
 
     /**
      * Obtiene el stock actual de un producto

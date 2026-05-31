@@ -19,11 +19,10 @@ public class CostoPromedioCalculator {
     ) {
         int stockAnterior = ultimoKardex.map(Kardex::stockActual).orElse(0);
         BigDecimal costoPromAnterior = ultimoKardex.map(Kardex::costoProm).orElse(BigDecimal.ZERO);
-        // Caso 1: NO hay historial
         if (stockAnterior == 0) {
             return new ResultadoCalculoPPP(
                 0,
-                costoUnitLote.setScale(ESCALA, REDONDEO),
+                BigDecimal.ZERO,
                 cantidadIngreso,
                 costoUnitLote.setScale(ESCALA, REDONDEO)
             );

@@ -56,6 +56,11 @@ public class RegisterMovementUseCase implements RegisterMovementPortIn {
             throw new IllegalArgumentException("Tipo de movimiento inválido: " + command.tipo());
         }
 
+        if ((tipo == TipoMovimiento.INGRESO || tipo == TipoMovimiento.AJUSTE_POSITIVO)
+                && (command.costoUnit() == null || command.costoUnit().compareTo(BigDecimal.ZERO) <= 0)) {
+            throw new IllegalArgumentException("El costo unitario debe ser mayor a 0 para INGRESO/AJUSTE_POSITIVO");
+        }
+
         UUID resolvedLotId = command.lotId();
 
         if (resolvedLotId == null && (tipo == TipoMovimiento.INGRESO || tipo == TipoMovimiento.AJUSTE_POSITIVO)) {

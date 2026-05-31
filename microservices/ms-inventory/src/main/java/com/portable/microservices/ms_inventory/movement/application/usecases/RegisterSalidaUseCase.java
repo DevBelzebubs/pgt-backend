@@ -72,7 +72,7 @@ public class RegisterSalidaUseCase implements RegisterSalidaPortIn {
 
         BigDecimal costoPromedio = ultimoKardex.map(KardexJpaEntity::getCostoProm).orElse(BigDecimal.ZERO);
         kardexPersistence.registrarSalida(
-                movimientoGuardado.idMovimiento(), idProducto, cantidad, costoPromedio);
+                movimientoGuardado.idMovimiento(), idProducto, cantidad, stockDisponible, costoPromedio);
 
         // Descontar cantidad del lote especificado (FIFO desde el lote dado)
         int remaining = cantidad;

@@ -5,12 +5,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
+import com.portable.microservices.ms_inventory.kardex.presentation.dto.KardexResponse;
 import com.portable.shared.infrastructure.presentation.PagedResponse;
 
 public interface FindKardexPortIn {
     Optional<Kardex> findLastByProductId(UUID productId);
 
-    List<Kardex> findByProductId(UUID productId);
+    List<Kardex> findByProductId(UUID id);
 
     PagedResponse<Kardex> findByProductId(UUID productId, int page, int size);
 

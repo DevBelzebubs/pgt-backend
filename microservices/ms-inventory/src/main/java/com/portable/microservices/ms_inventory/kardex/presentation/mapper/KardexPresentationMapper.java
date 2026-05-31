@@ -32,6 +32,15 @@ public class KardexPresentationMapper {
             MetodoCosto metodo,
             Function<UUID, Movement> movementResolver,
             Function<UUID, Product> productResolver) {
+        return toResponseList(kardexList, metodo, movementResolver, productResolver, null);
+    }
+
+    public List<KardexResponse> toResponseList(
+            List<Kardex> kardexList,
+            MetodoCosto metodo,
+            Function<UUID, Movement> movementResolver,
+            Function<UUID, Product> productResolver,
+            Function<UUID, List<Kardex>> allEntriesResolver) {
 
         if (kardexList.isEmpty()) return List.of();
 
@@ -43,17 +52,12 @@ public class KardexPresentationMapper {
             }
         }
 
-        Map<UUID, List<Kardex>> byProduct = kardexList.stream()
-            .collect(Collectors.groupingBy(Kardex::productoId));
+        Map<UUID, BigDecimal> costMap;
 
-        Map<UUID, BigDecimal> costMap = new HashMap<>();
-        for (List<Kardex> group : byProduct.values()) {
-            List<KardexEntry> entries = new ArrayList<>();
-            for (Kardex k : group) {
-                Movement m = movMap.get(k.movimientoId());
-                if (m != null) entries.add(new KardexEntry(k, m));
-            }
-            costMap.putAll(costSimulator.calcularCostos(entries, metodo));
+        if (metodo == MetodoCosto.PPP || allEntriesResolver == null) {
+            costMap = calcularCostosPaginados(kardexList, metodo, movMap);
+        } else {
+            costMap = calcularCostosCompletos(kardexList, metodo, movementResolver, allEntriesResolver);
         }
 
         return kardexList.stream()
@@ -64,6 +68,56 @@ public class KardexPresentationMapper {
                 return buildResponse(k, m, p, metodo, costo);
             })
             .toList();
+    }
+
+    private Map<UUID, BigDecimal> calcularCostosPaginados(
+            List<Kardex> kardexList, MetodoCosto metodo, Map<UUID, Movement> movMap) {
+        Map<UUID, List<Kardex>> byProduct = kardexList.stream()
+            .collect(Collectors.groupingBy(Kardex::productoId));
+        Map<UUID, BigDecimal> costMap = new HashMap<>();
+        for (List<Kardex> group : byProduct.values()) {
+            List<KardexEntry> entries = new ArrayList<>();
+            for (Kardex k : group) {
+                entries.add(new KardexEntry(k, movMap.get(k.movimientoId())));
+            }
+            costMap.putAll(costSimulator.calcularCostos(entries, metodo));
+        }
+        return costMap;
+    }
+
+    private Map<UUID, BigDecimal> calcularCostosCompletos(
+            List<Kardex> kardexList,
+            MetodoCosto metodo,
+            Function<UUID, Movement> movementResolver,
+            Function<UUID, List<Kardex>> allEntriesResolver) {
+
+        Map<UUID, List<Kardex>> byProduct = kardexList.stream()
+            .collect(Collectors.groupingBy(Kardex::productoId));
+
+        Map<UUID, Movement> fullMovMap = new HashMap<>();
+        Map<UUID, BigDecimal> costMap = new HashMap<>();
+
+        for (List<Kardex> group : byProduct.values()) {
+            UUID productId = group.get(0).productoId();
+            List<Kardex> allEntries = allEntriesResolver.apply(productId);
+            if (allEntries == null || allEntries.isEmpty()) {
+                allEntries = group;
+            }
+
+            for (Kardex k : allEntries) {
+                if (!fullMovMap.containsKey(k.movimientoId())) {
+                    Movement m = movementResolver.apply(k.movimientoId());
+                    if (m != null) fullMovMap.put(k.movimientoId(), m);
+                }
+            }
+
+            List<KardexEntry> entries = new ArrayList<>();
+            for (Kardex k : allEntries) {
+                entries.add(new KardexEntry(k, fullMovMap.get(k.movimientoId())));
+            }
+            costMap.putAll(costSimulator.calcularCostos(entries, metodo));
+        }
+        return costMap;
     }
 
     public KardexResponse toResponse(Kardex kardex, Movement movement, Product product) {

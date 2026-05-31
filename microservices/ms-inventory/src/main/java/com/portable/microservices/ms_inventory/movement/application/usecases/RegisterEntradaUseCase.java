@@ -1,11 +1,16 @@
 package com.portable.microservices.ms_inventory.movement.application.usecases;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
+import com.portable.microservices.ms_inventory.kardex.domain.ports.in.FindKardexPortIn;
+import com.portable.microservices.ms_inventory.kardex.domain.service.CostoPromedioCalculator;
+import com.portable.microservices.ms_inventory.kardex.domain.service.CostoPromedioCalculator.ResultadoCalculoPPP;
 import com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity.LoteJpaEntity;
 import com.portable.microservices.ms_inventory.movement.domain.model.Movimiento;
 
@@ -30,6 +35,9 @@ public class RegisterEntradaUseCase implements RegisterEntradaPortIn {
     private final MovimientoPersistencePortOut movimientoPersistence;
     private final KardexPersistencePortOut kardexPersistence;
     private final LotePersistencePortOut lotePersistence;
+    private final CostoPromedioCalculator costoPromedioCalculator;
+    private final FindKardexPortIn findKardexPortIn;
+
 
     @Override
     @Transactional
@@ -65,11 +73,16 @@ public class RegisterEntradaUseCase implements RegisterEntradaPortIn {
 
         // Registrar entrada en kardex
         BigDecimal costoUnitario = lote.getCostoUnit();
+        UUID productId = lote.getProducto().getId_producto();
+        Optional<Kardex> ultimoKardex = findKardexPortIn.findLastByProductId(productId);
+        ResultadoCalculoPPP resultado = costoPromedioCalculator
+                .calcularParaIngreso(ultimoKardex, cantidad, costoUnitario);
         kardexPersistence.registrarEntrada(
                 movimientoGuardado.idMovimiento(),
                 lote.getProducto().getId_producto(),
                 cantidad,
-                costoUnitario
+                resultado.stockAnterior(),
+                resultado.costoPromNuevo()
         );
         
         log.info("Entrada registrada exitosamente para lote: {}, cantidad: {}", idLote, cantidad);
