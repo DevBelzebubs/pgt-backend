@@ -56,4 +56,19 @@ public class ProductPersistenceAdapter implements ProductPersistencePortOut {
     public long count() {
         return repository.count();
     }
+
+    @Override
+    public List<Product> findAllWithFilters(String texto, Long idCategoria, Boolean estado, int page, int size) {
+        return repository.findAllWithFilters(
+                texto, idCategoria, estado, size, page * size).stream().map(entity -> {
+                    Integer stockTotal = repository.sumStockByProductId(entity.getId_producto());
+                    return mapper.toDomain(entity, stockTotal);
+                }).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public long countWithFilters(String texto, Long idCategoria, Boolean estado) {
+        return repository.countWithFilters(texto, idCategoria, estado);
+    }
 }

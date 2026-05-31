@@ -19,40 +19,17 @@ public record Movimiento(
     }
 
     public static Movimiento crearEntrada(UUID idLote, Long idUsuario, Integer cantidad, String motivo, String docRef) {
-        return new Movimiento(
-                null,
-                idLote,
-                idUsuario,
-                TipoMovimiento.INGRESO.name(),
-                cantidad,
-                null,
-                motivo,
-                docRef
-        );
+        return new Movimiento(null, idLote, idUsuario, TipoMovimiento.INGRESO.name(),
+                cantidad, null, motivo, docRef);
     }
 
     public static Movimiento crearAjustePositivo(UUID idLote, Long idUsuario, Integer cantidad, String motivo, String docRef) {
-        return new Movimiento(
-                null,
-                idLote,
-                idUsuario,
-                TipoMovimiento.AJUSTE_POSITIVO.name(),
-                cantidad,
-                null,
-                motivo,
-                docRef
-        );
+        return new Movimiento(null, idLote, idUsuario, TipoMovimiento.AJUSTE_POSITIVO.name(),
+                cantidad, null, motivo, docRef);
     }
 
-    public static Movimiento crearSalida(UUID idLote, Long idUsuario, String motivo, String docRef) {
-        return new Movimiento(
-                null,
-                idLote,
-                idUsuario,
-                TipoMovimiento.SALIDA.name(),
-                null,
-                motivo,
-                docRef
-        );
+    public static Movimiento crearSalida(UUID idLote, Long idUsuario, Integer cantidad, String motivo, String docRef) {
+        return new Movimiento(null, idLote, idUsuario, TipoMovimiento.SALIDA.name(),
+                cantidad, null, motivo, docRef);
     }
 }

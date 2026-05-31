@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
@@ -37,8 +39,28 @@ public class KardexPersistenceAdapter implements KardexPersistencePortOut {
                 .map(mapper::toDomain).collect(Collectors.toList());
     }
     @Override
+    public List<Kardex> findByProductId(UUID productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByProductoIdPaged(productId, pageable).stream()
+                .map(mapper::toDomain).collect(Collectors.toList());
+    }
+    @Override
+    public long countByProductId(UUID productId) {
+        return repository.countByProductoId(productId);
+    }
+    @Override
     public List<Kardex> findAll() {
         return repository.findAll().stream()
                 .map(mapper::toDomain).collect(Collectors.toList());
+    }
+    @Override
+    public List<Kardex> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllPaged(pageable).stream()
+                .map(mapper::toDomain).collect(Collectors.toList());
+    }
+    @Override
+    public long countAllKardex() {
+        return repository.countAllKardex();
     }
 }

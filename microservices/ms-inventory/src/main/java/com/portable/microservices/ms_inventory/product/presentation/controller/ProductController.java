@@ -10,6 +10,8 @@ import com.portable.microservices.ms_inventory.product.domain.ports.in.ExportPro
 import com.portable.microservices.ms_inventory.product.presentation.dto.CreateProductRequest;
 import com.portable.microservices.ms_inventory.product.presentation.dto.ProductResponse;
 import com.portable.microservices.ms_inventory.product.presentation.mapper.ProductPresentationMapper;
+import com.portable.shared.infrastructure.presentation.PagedResponse;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.core.io.Resource;
@@ -57,12 +59,18 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> findAll() {
-        List<ProductResponse> products = findProductUseCase.findAll().stream()
-                .map(presentationMapper::toResponse)
-                .toList();
-        return ResponseEntity.ok(products);
-    }
+public ResponseEntity<PagedResponse<ProductResponse>> findAll(
+        @RequestParam(required = false) String texto,
+        @RequestParam(required = false) Long idCategoria,
+        @RequestParam(required = false) Boolean estado,
+        @RequestParam(defaultValue = "0") int pagina,
+        @RequestParam(defaultValue = "50") int tamanioPagina) {
+    PagedResponse<Product> page = findProductUseCase.findAll(texto, idCategoria, estado, pagina, tamanioPagina);
+    List<ProductResponse> items = page.items().stream()
+            .map(presentationMapper::toResponse)
+            .toList();
+    return ResponseEntity.ok(new PagedResponse<>(items, page.total(), page.page(), page.pageSize()));
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findById(@PathVariable UUID id) {

@@ -1,11 +1,15 @@
 package com.portable.microservices.ms_inventory.movement.application.usecases;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.portable.microservices.ms_inventory.kardex.domain.model.Kardex;
+import com.portable.microservices.ms_inventory.kardex.domain.ports.in.FindKardexPortIn;
+import com.portable.microservices.ms_inventory.kardex.domain.service.CostoPromedioCalculator;
 import com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity.LoteJpaEntity;
 import com.portable.microservices.ms_inventory.movement.domain.model.Movimiento;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterAjustePositivoPortIn;
@@ -31,6 +35,8 @@ public class RegisterAjustePositivoUseCase implements RegisterAjustePositivoPort
     private final MovimientoPersistencePortOut movimientoPersistence;
     private final KardexPersistencePortOut kardexPersistence;
     private final LotePersistencePortOut lotePersistence;
+    private final CostoPromedioCalculator costoPromedioCalculator;
+    private final FindKardexPortIn findKardexPortIn;
 
     @Override
     @Transactional
@@ -71,11 +77,16 @@ public class RegisterAjustePositivoUseCase implements RegisterAjustePositivoPort
 
         // Registrar en kardex — misma lógica que entrada: suma stock
         BigDecimal costoUnitario = lote.getCostoUnit();
+        UUID productId = lote.getProducto().getId_producto();
+        Optional<Kardex> ultimoKardex = findKardexPortIn.findLastByProductId(productId);
+        CostoPromedioCalculator.ResultadoCalculoPPP resultado = costoPromedioCalculator
+                .calcularParaIngreso(ultimoKardex, cantidad, costoUnitario);
         kardexPersistence.registrarEntrada(
                 movimientoGuardado.idMovimiento(),
                 lote.getProducto().getId_producto(),
                 cantidad,
-                costoUnitario
+                resultado.stockAnterior(),
+                resultado.costoPromNuevo()
         );
 
         log.info("Ajuste positivo registrado exitosamente para lote: {}, cantidad: {}", idLote, cantidad);
