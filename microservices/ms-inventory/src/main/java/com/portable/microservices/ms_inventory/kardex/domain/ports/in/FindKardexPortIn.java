@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.kardex.domain.ports.in;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,4 +19,6 @@ public interface FindKardexPortIn {
     List<Kardex> findAll();
 
     PagedResponse<Kardex> findAll(int page, int size);
+
+    PagedResponse<Kardex> findAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto, int page, int size);
 }

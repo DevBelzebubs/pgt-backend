@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.kardex.domain.ports.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,4 +25,8 @@ public interface KardexPersistencePortOut {
     List<Kardex> findAll(int page, int size);
 
     long countAllKardex();
+
+    List<Kardex> findAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto, int page, int size);
+
+    long countAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto);
 }

@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.kardex.application.usecases;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +40,14 @@ public class FindKardexUseCase implements FindKardexPortIn {
     public PagedResponse<Kardex> findAll(int page, int size) {
         List<Kardex> items = kardexPersistence.findAll(page, size);
         long total = kardexPersistence.countAllKardex();
+        return new PagedResponse<>(items, total, page, size);
+    }
+
+    @Override
+    public PagedResponse<Kardex> findAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto, int page, int size) {
+        String textoSeguro = (texto == null) ? "" : texto;
+        List<Kardex> items = kardexPersistence.findAllWithFilters(tipoMovimiento, fechaDesde, fechaHasta, textoSeguro, page, size);
+        long total = kardexPersistence.countAllWithFilters(tipoMovimiento, fechaDesde, fechaHasta, textoSeguro);
         return new PagedResponse<>(items, total, page, size);
     }
 }

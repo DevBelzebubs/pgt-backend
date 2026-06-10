@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.util.StringUtils;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,13 +42,32 @@ public class KardexController {
     @GetMapping
     public ResponseEntity<PagedResponse<KardexResponse>> findAll(
             @RequestParam(required = false) UUID idProducto,
+            @RequestParam(required = false) String tipoMovimiento,
+            @RequestParam(required = false) String fechaDesde,
+            @RequestParam(required = false) String fechaHasta,
+            @RequestParam(required = false) String texto,
             @RequestParam(defaultValue = "PPP") String metodoCosto,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "50") int tamanioPagina) {
         MetodoCosto metodo = parseMetodo(metodoCosto);
-        PagedResponse<Kardex> page = (idProducto != null)
-                ? findKardexUseCase.findByProductId(idProducto, pagina, tamanioPagina)
-                : findKardexUseCase.findAll(pagina, tamanioPagina);
+
+        boolean hasFilters = StringUtils.hasText(tipoMovimiento)
+                || StringUtils.hasText(fechaDesde)
+                || StringUtils.hasText(fechaHasta)
+                || StringUtils.hasText(texto);
+
+        LocalDate desde = StringUtils.hasText(fechaDesde) ? LocalDate.parse(fechaDesde) : null;
+        LocalDate hasta = StringUtils.hasText(fechaHasta) ? LocalDate.parse(fechaHasta) : null;
+
+        PagedResponse<Kardex> page;
+        if (idProducto != null) {
+            page = findKardexUseCase.findByProductId(idProducto, pagina, tamanioPagina);
+        } else if (hasFilters) {
+            page = findKardexUseCase.findAllWithFilters(tipoMovimiento, desde, hasta, texto, pagina, tamanioPagina);
+        } else {
+            page = findKardexUseCase.findAll(pagina, tamanioPagina);
+        }
+
         List<KardexResponse> items = presentationMapper.toResponseList(
                 page.items(), metodo,
                 id -> movementPersistence.findById(id).orElse(null),
