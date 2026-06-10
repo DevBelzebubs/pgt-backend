@@ -84,6 +84,9 @@ public class RegisterEntradaUseCase implements RegisterEntradaPortIn {
                 resultado.stockAnterior(),
                 resultado.costoPromNuevo()
         );
+
+        lote.setCantidad(lote.getCantidad() + cantidad);
+        lotePersistence.update(lote);
         
         log.info("Entrada registrada exitosamente para lote: {}, cantidad: {}", idLote, cantidad);
 

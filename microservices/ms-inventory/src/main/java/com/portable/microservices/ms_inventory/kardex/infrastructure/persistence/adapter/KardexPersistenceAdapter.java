@@ -1,5 +1,6 @@
 package com.portable.microservices.ms_inventory.kardex.infrastructure.persistence.adapter;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,5 +63,17 @@ public class KardexPersistenceAdapter implements KardexPersistencePortOut {
     @Override
     public long countAllKardex() {
         return repository.countAllKardex();
+    }
+
+    @Override
+    public List<Kardex> findAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllWithFilters(tipoMovimiento, fechaDesde, fechaHasta, texto, pageable).stream()
+                .map(mapper::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public long countAllWithFilters(String tipoMovimiento, LocalDate fechaDesde, LocalDate fechaHasta, String texto) {
+        return repository.countAllWithFilters(tipoMovimiento, fechaDesde, fechaHasta, texto);
     }
 }

@@ -16,7 +16,6 @@ import com.portable.microservices.ms_inventory.lot.domain.model.Lot;
 import com.portable.microservices.ms_inventory.movement.domain.model.Movement;
 import com.portable.microservices.ms_inventory.movement.domain.model.TipoMovimiento;
 import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterIngresoPortIn;
-import com.portable.microservices.ms_inventory.movement.domain.ports.in.RegisterIngresoPortIn.RegisterIngresoCommand;
 import com.portable.microservices.ms_inventory.movement.domain.ports.out.MovementPersistencePortOut;
 
 import lombok.RequiredArgsConstructor;
