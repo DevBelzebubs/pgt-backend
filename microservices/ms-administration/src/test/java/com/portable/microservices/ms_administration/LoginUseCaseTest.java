@@ -56,7 +56,7 @@ class LoginUseCaseTest {
 
         when(accountPersistence.findByUsername(username)).thenReturn(Optional.of(account));
         when(passwordEncryptation.matches(password, encryptedPassword)).thenReturn(true);
-        when(jwtService.createToken(username, "ADMIN")).thenReturn(expectedToken);
+        //when(jwtService.createToken(username, "ADMIN")).thenReturn(expectedToken);
 
         // Act
         String result = loginUseCase.execute(username, password);

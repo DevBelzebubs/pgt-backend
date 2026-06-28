@@ -16,5 +16,6 @@ public record CreateProductRequest(
     @NotNull BigDecimal preCom,
     @NotNull BigDecimal preVen,
     Integer stockMinimo,
-    Integer stockInicial
+    Integer stockInicial,
+    String idLocacion
 ) {}

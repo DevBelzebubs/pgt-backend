@@ -52,7 +52,8 @@ public class ProductController {
                 request.preCom(),
                 request.preVen(),
                 request.stockMinimo(),
-                request.stockInicial()
+                request.stockInicial(),
+                request.idLocacion() != null ? UUID.fromString(request.idLocacion()) : null
             )
         );
         return ResponseEntity.ok(presentationMapper.toResponse(product));
