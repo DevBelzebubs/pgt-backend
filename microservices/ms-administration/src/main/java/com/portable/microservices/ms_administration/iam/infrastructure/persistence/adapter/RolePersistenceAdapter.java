@@ -19,8 +19,14 @@ public class RolePersistenceAdapter implements RolePersistencePortOut {
 
     @Override
     public Role save(Role role) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        com.portable.microservices.ms_administration.iam.infrastructure.persistence.entity.RoleJpaEntity entity =
+                com.portable.microservices.ms_administration.iam.infrastructure.persistence.entity.RoleJpaEntity.builder()
+                        .id(role.id())
+                        .name(role.name())
+                        .build();
+
+        var saved = repository.save(entity);
+        return new Role(saved.getId(), saved.getName(), saved.getCreatedAt());
     }
 
     @Override
@@ -30,8 +36,20 @@ public class RolePersistenceAdapter implements RolePersistencePortOut {
     }
 
     @Override
+    public Optional<Role> findById(Long id) {
+        return repository.findById(id)
+                .map(entity -> new Role(entity.getId(), entity.getName(), entity.getCreatedAt()));
+    }
+
+    @Override
     public List<Role> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        return repository.findAll().stream()
+                .map(e -> new Role(e.getId(), e.getName(), e.getCreatedAt()))
+                .toList();
+    }
+    
+    @Override
+    public void deleteById(Long id) {
+        repository.deleteById(id);
     }
 }

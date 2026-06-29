@@ -9,5 +9,7 @@ import com.portable.microservices.ms_administration.iam.infrastructure.persisten
 
 public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     Optional<UserJpaEntity> findByDni(String dni);
+    Optional<UserJpaEntity> findByUuid(UUID uuid);
+
     void deleteByUuid(UUID uuid);
 }

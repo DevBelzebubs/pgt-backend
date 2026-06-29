@@ -29,14 +29,22 @@ public class UserPersistenceAdapter implements UserPersistencePortOut {
 
     @Override
     public Optional<User> findById(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+        try {
+            Long longId = Long.valueOf(id);
+            return repository.findById(longId).map(mapper::toDomain);
+        } catch (NumberFormatException e) {
+            try {
+                UUID uuid = UUID.fromString(id);
+                return repository.findByUuid(uuid).map(mapper::toDomain);
+            } catch (IllegalArgumentException ex) {
+                return Optional.empty();
+            }
+        }
     }
 
     @Override
     public Optional<User> findByUuid(UUID uuid) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUuid'");
+        return repository.findByUuid(uuid).map(mapper::toDomain);
     }
 
     @Override
@@ -46,14 +54,22 @@ public class UserPersistenceAdapter implements UserPersistencePortOut {
 
     @Override
     public List<User> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        return repository.findAll().stream().map(mapper::toDomain).toList();
     }
     
     @Override
     public void deleteById(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+        try {
+            Long longId = Long.valueOf(id);
+            repository.deleteById(longId);
+        } catch (NumberFormatException e) {
+            try {
+                UUID uuid = UUID.fromString(id);
+                repository.deleteByUuid(uuid);
+            } catch (IllegalArgumentException ex) {
+                // invalid id format — no-op
+            }
+        }
     }
 
     
