@@ -1,21 +1,24 @@
 server:
   port: 8083
 spring:
+  application:
+    name: ms-inventory
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_portable?currentSchema=inventory
-    username: postgres
-    password: admin
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/db_portable?currentSchema=inventory}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:admin}
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: validate
-      show-sql: true
-      format-sql: true
     properties:
-      hibernate.default_schema: inventory
+      hibernate:
+        format-sql: true
+        default_schema: inventory
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-server:8761/eureka/}
   instance:
-    hostname: localhost
-    prefer-ip-address: true
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:ms-inventory}
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:false}

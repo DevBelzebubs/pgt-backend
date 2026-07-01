@@ -53,6 +53,48 @@ spring:
           uri: lb://ms-inventory
           predicates:
             - Path=/api/v1/warehouses/**
+
+        - id: ms-inventory-products
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/products/**
+
+        - id: ms-inventory-categories
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/categories/**
+
+        - id: ms-inventory-brands
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/brands/**
+
+        - id: ms-inventory-movements
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/movimientos/**
+        - id: ms-inventory-kardex
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/kardex/**
+        - id: ms-inventory-dashboard
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/dashboard/**
+        - id: ms-inventory-heatmap
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/v1/heatmap/**
+        - id: ms-inventory-ws
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/ws/**
+
+        - id: ms-tracking-picking
+          uri: lb://ms-tracking
+          predicates:
+            - Path=/api/v1/picking/**
+
 eureka:
   client:
     service-url:

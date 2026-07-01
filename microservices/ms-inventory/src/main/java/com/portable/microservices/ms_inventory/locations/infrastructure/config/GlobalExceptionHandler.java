@@ -39,13 +39,21 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Error en la validación de los datos enviados", errors));
     }
 
-    // 4. El "Atrapa-Todo" para errores inesperados (NullPointers, BD caída, etc.)
+    // 4. Atrapa IllegalArgumentException (entidad no encontrada por ID) y responde 404
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.SC_NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    // 5. El "Atrapa-Todo" para errores inesperados (NullPointers, BD caída, etc.)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
         // Ojo: En un entorno real de producción, no deberías exponer ex.getMessage() al usuario, 
         // pero para desarrollo es muy útil para saber qué se rompió.
         return ResponseEntity
-                .status(HttpStatus.SC_SERVER_ERROR) // Código 500
+                .status(HttpStatus.SC_SERVER_ERROR)
                 .body(ApiResponse.error("Ocurrió un error interno: " + ex.getMessage(), null));
     }
 }

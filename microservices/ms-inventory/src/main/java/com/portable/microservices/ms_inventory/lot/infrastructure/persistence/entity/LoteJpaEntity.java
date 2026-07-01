@@ -1,0 +1,131 @@
+package com.portable.microservices.ms_inventory.lot.infrastructure.persistence.entity;
+
+import com.portable.microservices.ms_inventory.locations.infrastructure.persistence.entity.LocationJpaEntity;
+import com.portable.microservices.ms_inventory.product.infrastructure.persistence.entity.ProductJpaEntity;
+
+import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@NoArgsConstructor
+@Entity
+@Table(schema = "inventory", name = "lote")
+public class LoteJpaEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID idLote;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_producto", nullable = false)
+    private ProductJpaEntity producto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_locacion", nullable = true)
+    private LocationJpaEntity locacion;
+
+    @Column(nullable = false, length = 50)
+    private String nroLote;
+
+    @Column(nullable = false)
+    private LocalDate fecIngreso;
+
+    @Column(nullable = false, precision = 12, scale = 4)
+    private BigDecimal costoUnit;
+
+    @Column(length = 20)
+    private String estado = "DISPONIBLE";
+
+    @Column(length = 150)
+    private String proveedor;
+    
+    @Column(name = "cod_prov", length = 30)
+    private String codProv;
+
+    @Column(nullable = false)
+    private Integer cantidad;
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public UUID getIdLote() {
+        return idLote;
+    }
+
+    public String getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
+
+    public String getCodProv() {
+        return codProv;
+    }
+
+    public void setCodProv(String codProv) {
+        this.codProv = codProv;
+    }
+
+    public void setIdLote(UUID idLote) {
+        this.idLote = idLote;
+    }
+
+    public ProductJpaEntity getProducto() {
+        return producto;
+    }
+
+    public void setProducto(ProductJpaEntity producto) {
+        this.producto = producto;
+    }
+
+    public LocationJpaEntity getLocacion() {
+        return locacion;
+    }
+
+    public void setLocacion(LocationJpaEntity locacion) {
+        this.locacion = locacion;
+    }
+
+    public String getNroLote() {
+        return nroLote;
+    }
+
+    public void setNroLote(String nroLote) {
+        this.nroLote = nroLote;
+    }
+
+    public LocalDate getFecIngreso() {
+        return fecIngreso;
+    }
+
+    public void setFecIngreso(LocalDate fecIngreso) {
+        this.fecIngreso = fecIngreso;
+    }
+
+    public BigDecimal getCostoUnit() {
+        return costoUnit;
+    }
+
+    public void setCostoUnit(BigDecimal costoUnit) {
+        this.costoUnit = costoUnit;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+}
